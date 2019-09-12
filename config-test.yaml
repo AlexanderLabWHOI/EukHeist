@@ -1,0 +1,17 @@
+study_accession: PRJEB4352
+input_ena_table: /vortexfs1/omics/alexander/data/TARA/test_data/test_PRJEB4352.txt 
+inputDIR: /vortexfs1/omics/alexander/data/TARA/test_data 
+outputDIR: /vortexfs1/omics/alexander/data/TARA/test_data/output 
+scratch: /vortexfs1/omics/alexander/data/TARA/test_data/output 
+adapters: input/adapters/illumina-adapters.fa
+sample_list: input/SampleList_Test.txt
+megahit_other: --continue --k-list 29,39,59,79,99,119 
+megahit_cpu: 10
+megahit_min_contig: 1000
+megahit_mem: .95
+restart-times: 0
+max-jobs-per-second: 1
+max-status-checks-per-second: 10
+local-cores: 1
+rerun-incomplete: true
+keep-going: true

@@ -1,0 +1,8 @@
+channels:
+    - r
+    - bioconda
+    - conda-forge
+    - defaults
+dependencies:    
+    - r-irkernel=0.8.12
+    - nb_conda_kernels 

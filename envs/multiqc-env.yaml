@@ -1,0 +1,5 @@
+channels:
+      - bioconda
+      - defaults
+dependencies:
+      - multiqc == 1.6

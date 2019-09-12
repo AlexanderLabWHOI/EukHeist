@@ -1,0 +1,6 @@
+channels:
+    - bioconda
+dependencies:    
+    - megahit=1.1.3 
+
+

@@ -1,0 +1,4 @@
+channels: 
+    - bioconda
+dependencies:
+    - khmer=3.0.0a2

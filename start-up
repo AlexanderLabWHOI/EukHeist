@@ -1,0 +1,2 @@
+module load anaconda
+conda activate snakemake-tara-euk

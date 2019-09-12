@@ -1,0 +1,8 @@
+channels:
+    - bioconda
+    - conda-forge
+    - defaults
+dependencies:    
+    - metabat2=2.12.1
+    - bwa=0.7.17 
+    - samtools=1.9

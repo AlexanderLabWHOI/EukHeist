@@ -1,0 +1,9 @@
+name: eukrep 
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+ - pip
+ - pip:
+     - EukRep

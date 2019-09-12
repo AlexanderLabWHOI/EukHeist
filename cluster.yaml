@@ -1,0 +1,91 @@
+__default__:
+    system: 'slurm' #check if system is defined below
+    account: halexander #requred
+    time: 120 # minutes
+    mem: 10 # GB
+    threads: 8
+    queue: compute # required
+    nodes: 1
+    command_options:
+        slurm:
+            command: "sbatch --parsable --qos=unlim"
+            key_mapping:
+            name: "--job-name={}"
+            threads: "-n {}"
+            mem: "--mem={}g"
+            account: "--account={}"
+            queue: "--partition={}"
+            time: "--time={}"
+            nodes: "-N {}"      # ntasks: 24
+
+fastqc: 
+    queue: compute
+    threads: 1
+    mem: 1
+    time: 720
+
+fastqc_trimmed: 
+    queue: compute
+    threads: 1
+    mem: 1
+    time: 720
+
+trimmomatic:
+    queue: compute
+    threads: 6
+    mem: 24
+    time: 720
+
+compute_sigs:
+    queue: compute
+    mem: 4
+    time: 2800
+    threads: 2
+
+megahit_assembly:
+    queue: bigmem
+    time: 10080 
+    mem: 3000
+    threads: 80 
+
+bwa_index:
+    queue: compute 
+    time: 1440
+    mem: 16
+    threads: 2 
+
+bwa_mem: 
+    queue: compute
+    time: 1440
+    mem: 16
+    threads: 8
+
+metabat_abundance: 
+    queue: compute
+    time: 720
+    mem: 18
+    threads: 16
+
+metabat_binning: 
+    queue: compute
+    time: 720
+    mem: 32
+    threads: 16
+
+metabat_binning_euk: 
+    queue: compute
+    time: 720
+    mem: 32
+    threads: 16
+
+eukrep:
+    queue: compute
+    time: 600
+    mem: 8
+    threads: 2
+
+prodigal:
+    queue: compute
+    time: 2400
+    mem: 16 
+    threads: 1

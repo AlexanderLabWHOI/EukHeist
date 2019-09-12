@@ -1,0 +1,8 @@
+channels:
+    - bioconda
+    - conda-forge
+    - defaults
+dependencies:    
+    - bbmap=37.99
+    - samtools=1.5
+    - pigz=2.4

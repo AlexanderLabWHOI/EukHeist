@@ -1,0 +1,32 @@
+## Explanation for merging metadata with PRJEB sample lists
+
+### Import project text files downloaded from ESA and metadata from PANGAEA
+
+From TARA ocean-specific project site at European Nucleotide Archive website, download text file listing all samples. Make sure to select all available columns to include unique 'sample_alias' identifier to link to Pangaea metadata. [ENA project website](https://www.ebi.ac.uk/ena/data/view/PRJEB4352)
+
+```
+# Download and unzip pangaea information
+curl -L -o pangaea_tara.zip https://doi.pangaea.de/10.1594/PANGAEA.875582?format=zip
+unzip pangaea_tara.zip
+```
+
+### Compile sample data 
+Merge pangaea metadata with PRJEB information using 'CompileMetaData_parsePRJEB' notebook. See available text file: 'PRJEB4352_metaG.txt'  
+
+* Imports ESA download file
+* Merges with relevant pangaea metadata
+* writes to new files 'XXX_env.txt'. **Also available in repo**
+
+### Group samples according to region
+Using 'PRJEB4352_metaG_wenv.txt', re-label size fractions to fall into 5 total categories and organize by ocean and ocean province to determine which samples will be grouped for *de novo* assembly.
+
+* Import 'PRJEB4352_metaG_wenv.txt'
+* Update size fractions
+* Generate table of min, max, and total number of depths (m) within each 'Environmental feature'
+* Generate series of plots to visualize the total number of samples within each ocean region, with respect to environmental feature and size fraction.
+* Make new table which clusters samples first by ocean region and then, if applicable, by ocean province within each major ocean region. *See function 'set_groups()'*
+* Write this table to "Samplelist_forassembly.txt", to group samples for assembly. *See column 'Assembly_group'*
+
+
+
+
