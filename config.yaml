@@ -1,13 +1,25 @@
 metaG_accession: PRJEB4352
 metaT_accession: PRJEB6609
-metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt
-metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
+
+metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt
+metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
+
+#metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt
+#metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
+
 inputDIR: /vortexfs1/omics/alexander/data/TARA
-outputDIR: /vortexfs1/omics/alexander/data/TARA/PRJEB4352-snakmake-output 
-scratch:  /vortexfs1/scratch/halexander/tara
+outputDIR: /vortexfs1/omics/alexander/shu/output-data-TARA
+
+#outputDIR: /vortexfs1/omics/alexander/data/TARA/PRJEB4352-snakmake-output 
+
+scratch:  /vortexfs1/scratch/sarahhu/tara
 adapters: input/adapters/illumina-adapters.fa
-metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
-metaT_sample_list: input/SampleList_ForAssembly_metaT_python.txt 
+metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt
+metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
+
+#metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
+#metaT_sample_list: input/SampleList_ForAssembly_metaT_python.txt 
+
 megahit_other: --continue --k-list 29,39,59,79,99,119 
 megahit_cpu: 80
 megahit_min_contig: 1000
