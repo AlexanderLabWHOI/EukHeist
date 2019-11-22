@@ -10,7 +10,36 @@ _General workflow_
 
 
 # Setup
-***
+Inputs from user:   
+* 2 input directories storing raw metatranscriptome and metagenome fastq files. If read pairs are nested by sample ID, that is OK.
+```
+example file structure
+- metaG_files/sample1_metag_r1.fastq.gz
+- metaG_files/sample1_metag_r2.fastq.gz
+```
+* Provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. See example data table ```NAME```. _(optional)_
+```
+example sample data table
+```
+* Generate an *Assembly group table* which lists a unique name for each group of samples you wish to assemble together. Based on the provided example data set and data table(```NAME```), we've included scripts you can modify to generate your assembly group table. 
+```
+example assembly group table
+HEADERS:
+Assembly_group	Sample_list
+
+*Sample-list must be comma separated with a space
+
+```
+* Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
+As an example, my input fastq files are located somewhere else, while the assembly group table is located in the input directory in this repo. 
+```
+copy config file
+```
+
+##outstanding questions/to-do:
+- 
+
+
 ### Dependencies
 Create a conda environment to run the EukHeist pipeline:
 
@@ -22,4 +51,7 @@ This conda environment runs the snakemake pipeline manager. Snakemake is then de
 ### Data
 Download Tara Expedition metagenomic and metatranscriptomic data. [Use this pipeline](https://github.com/AlexanderLabWHOI/tara-download-snakemake/blob/master/Snakefile)
 **This needs to get sorted**
+
+### Configure working directories
+
 
