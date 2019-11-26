@@ -55,3 +55,10 @@ Download Tara Expedition metagenomic and metatranscriptomic data. [Use this pipe
 ### Configure working directories
 
 
+## TO DO
+* update so that input files can be R1_001.fastq.gz or 1.fastq.gz - or else? 
+* Nested config.yaml file type?
+* User needs to supply a SAMPLE LIST and an ASSEMBLY list
+* Need to include a check at the beginning that (a) ensures all fastq files in SAMPLE LIST are present and not duplicated file names, (b) all samples listed in the ASSMEBLY GROUPS are also present in the SAMPLE LIST and not included more than once.
+* Example input file with test data can have an accompanying scripts (maybe even in R and python!) that make a SAMPLE LIST from what is present in a given directory (see make-manifest-current.R) and a second one that sorts into assembly lists by parsing part of the file name???
+
