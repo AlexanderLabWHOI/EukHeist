@@ -1,0 +1,10 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - snakemake =5.6.0
+  - python =3.6
+  - jinja2 =2.10
+  - networkx =2.1
+  - matplotlib
+  - graphviz =2.38.0
