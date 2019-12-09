@@ -55,22 +55,34 @@ Rscript generate-metaT-samplelist.r
 ## Repeat for metagenome
 
 ```
-*The last column* of the sample list table
+*The last column* of the sample list table _ASSEMBLY_GROUP_ lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines. See final versions of this in ```EukHeist/input/samplelist-meta*-wgroups.txt```
 
-* Generate an *Assembly group table* which lists a unique name for each group of samples you wish to assemble together. Based on the provided example data set and data table(```NAME```), we've included scripts you can modify to generate your assembly group table. 
+3. Generate an *Assembly group table* which lists a unique name for each group of samples you wish to assemble together. Based on the provided example data set and data table(```NAME```), we've included scripts you can modify to generate your assembly group table. You can also use the provided script to generate this file for you, based on the _ASSEMBLY_GROUP_ column from the ```samplelist-metaG-wgroups.txt``` and ```samplelist-metaT-wgroups.txt``` files.
 ```
-example assembly group table
-HEADERS:
-Assembly_group	Sample_list
+ASSEMBLY_GROUPING       SAMPLE_LIST
+Group1  ERR1726828,ERR599214
+Group2  ERR868421
+```
 
-*Sample-list must be comma separated with a space
+To generate automatically, run Rscript ```/EukHeist/input/generate-assembly-group-tables.r```.
+```
+cd /EukHeist/input/
+# Ensure metaG and metaT files are present, named:
+## samplelist-metaG-wgroups.txt
+## samplelist-metaT-wgroups.txt
+
+Rscript generate-assembly-group-tables.r
+# Output file: assembly-list-metaG.txt and assembly-list-metaT.txt
 
 ```
-* Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
+
+4. Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
 As an example, my input fastq files are located somewhere else, while the assembly group table is located in the input directory in this repo. 
 ```
-copy config file
+# Input lines in config file that are relevent for the above sample and assembly group list files.
 ```
+
+
 
 ##outstanding questions/to-do:
 - 
