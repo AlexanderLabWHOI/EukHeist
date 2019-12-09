@@ -13,9 +13,10 @@ _General workflow_
 Inputs from user:   
 * 2 input directories storing raw metatranscriptome and metagenome fastq files. If read pairs are nested by sample ID, that is OK.
 ```
-example file structure
-- metaG_files/sample1_metag_r1.fastq.gz
-- metaG_files/sample1_metag_r2.fastq.gz
+EukHeist/raw_dir/
+├── metagenome
+└── metatranscriptome
+
 ```
 * Provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. See example data table ```NAME```. _(optional)_
 ```
