@@ -12,27 +12,28 @@ _General workflow_
 # Setup
 Inputs from user:   
 1.  2 input directories storing raw metatranscriptome and metagenome fastq files. If read pairs are nested by sample ID, that is OK.
-
-> EukHeist/raw_dir/
-> ├── metagenome
-> └── metatranscriptome
-
+```
+ EukHeist/raw_dir/
+ ├── metagenome
+ └── metatranscriptome
+```
 Using the test data:
-> EukHeist/raw_dir/
-> │── metagenome
->   ├── ERR1726828  #This is an example of nested
->   │   ├── ERR1726828_1.fastq.gz
->   │   ├── ERR1726828_2.fastq.gz
->   │   └── md5sum.tab
->   ├── ERR599214
->   │   ├── ERR599214_1.fastq.gz
->   │   ├── ERR599214_2.fastq.gz
->   │   └── md5sum.tab
->   └── ERR868421
->       ├── ERR868421_1.fastq.gz
->       ├── ERR868421_2.fastq.gz
->       └── md5sum.tab
-
+```
+ EukHeist/raw_dir/
+ │── metagenome
+   ├── ERR1726828  #This is an example of nested
+   │   ├── ERR1726828_1.fastq.gz
+   │   ├── ERR1726828_2.fastq.gz
+   │   └── md5sum.tab
+   ├── ERR599214
+   │   ├── ERR599214_1.fastq.gz
+   │   ├── ERR599214_2.fastq.gz
+   │   └── md5sum.tab
+   └── ERR868421
+       ├── ERR868421_1.fastq.gz
+       ├── ERR868421_2.fastq.gz
+       └── md5sum.tab
+```
 
 2. Based on the above data sets, provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. See example data table ```NAME```. _(optional)_
 ```
