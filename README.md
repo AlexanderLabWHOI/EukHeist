@@ -82,18 +82,60 @@ As an example, my input fastq files are located somewhere else, while the assemb
 # Input lines in config file that are relevent for the above sample and assembly group list files.
 ```
 
-
-
-##outstanding questions/to-do:
-- 
-
-
-### Dependencies
-Create a conda environment to run the EukHeist pipeline:
+5. Create a conda environment to run the EukHeist pipeline:
 
 ```conda env create --name EukHeist --file environment.yaml```
 
 This conda environment runs the snakemake pipeline manager. Snakemake is then dependent on the environments available in ```EukHeist/envs/``` or through snakemake wrappers to run modules within the pipeline.
+
+
+# Explanation of working directory
+
+```
+EukHeist
+├── cluster.yaml         # Specifications to submit Snakemake jobs through SLURM on HPC
+├── config-test.yaml     # Test configuration file
+├── config.yaml          # Configuration file, modified above. Edit to customize Snakemake pipeline
+├── environmentv0.2.yaml # Starting environment to load Snakemake
+├── environment.yaml     # Old environment file - to delete
+├── envs
+│   ├── bbmap-env.yaml
+│   ├── EukRep.yaml
+│   ├── irkernel.yaml
+│   ├── megahit.yaml
+│   ├── metabat-env.yaml
+│   ├── multiqc-env.yaml
+│   ├── prodigal.yaml
+│   ├── sourmash.yaml
+│   └── trim_low_abund.yaml
+├── input
+│   ├── adapters
+│   │   ├── all-adapters.fa
+│   │   ├── illumina-adapters.fa
+│   │   ├── NexteraPE-PE.fa
+│   │   ├── TruSeq2-PE.fa
+│   │   ├── TruSeq2-SE.fa
+│   │   ├── TruSeq3-PE-2.fa
+│   │   ├── TruSeq3-PE.fa
+│   │   └── TruSeq3-SE.fa
+│   ├── assembly-list-metaG.txt
+│   ├── assembly-list-metaT.txt
+│   ├── generate-assembly-group-tables.r
+│   ├── samplelist-metaG-wgroups.txt
+│   └── samplelist-metaT-wgroups.txt
+├── raw_dir
+│   ├── metagenome
+│   └── metatranscriptome
+├── README.md
+├── rules
+│   └── normalization.smk
+├── Snakefile
+├── start-up
+└── submit_script
+    ├── dry_submit_snakemake.sh
+    ├── submit_snakemake.sh
+    └── verb_dry_submit_snakemake.sh
+```
 
 
 ### Data
