@@ -11,17 +11,51 @@ _General workflow_
 
 # Setup
 Inputs from user:   
-* 2 input directories storing raw metatranscriptome and metagenome fastq files. If read pairs are nested by sample ID, that is OK.
+1.  2 input directories storing raw metatranscriptome and metagenome fastq files. If read pairs are nested by sample ID, that is OK.
+
+> EukHeist/raw_dir/
+> ├── metagenome
+> └── metatranscriptome
+
+Using the test data:
+> EukHeist/raw_dir/
+> │── metagenome
+>   ├── ERR1726828  #This is an example of nested
+>   │   ├── ERR1726828_1.fastq.gz
+>   │   ├── ERR1726828_2.fastq.gz
+>   │   └── md5sum.tab
+>   ├── ERR599214
+>   │   ├── ERR599214_1.fastq.gz
+>   │   ├── ERR599214_2.fastq.gz
+>   │   └── md5sum.tab
+>   └── ERR868421
+>       ├── ERR868421_1.fastq.gz
+>       ├── ERR868421_2.fastq.gz
+>       └── md5sum.tab
+
+
+2. Based on the above data sets, provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. See example data table ```NAME```. _(optional)_
 ```
-EukHeist/raw_dir/
-├── metagenome
-└── metatranscriptome
+SAMPLEID        FULLPATH        R1      R2      OMIC    ASSEMBLY_GROUPING
+ERR1711907      /vortexfs1/omics/alexander/shu/EukHeist/raw_dir/metatranscriptome/ERR1711907    ERR1711907_1.fastq.gz   ERR1711907_2.fastq.gz   METATRANSCRIPTOME       
+ERR1719262      /vortexfs1/omics/alexander/shu/EukHeist/raw_dir/metatranscriptome/ERR1719262    ERR1719262_1.fastq.gz   ERR1719262_2.fastq.gz   METATRANSCRIPTOME       
+ERR1740135      /vortexfs1/omics/alexander/shu/EukHeist/raw_dir/metatranscriptome/ERR1740135    ERR1740135_1.fastq.gz   ERR1740135_2.fastq.gz   METATRANSCRIPTOME  
+```
+To automatically generate this using the contents in ```metagenome``` and ```metatranscriptome```, see Rscripts that find the directory's fastq files and create the above table.
+```
+# Example R script:
+cd ./EukHeist/raw_dir/metatranscriptome/
+
+# Enable an R environment to run R
+conda activate r_3.5.1
+Rscript generate-metaT-samplelist.r
+
+# Output sample list: 'samplelist-metaT.txt'
+## Repeat for metagenome
 
 ```
-* Provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. See example data table ```NAME```. _(optional)_
-```
-example sample data table
-```
+*The last column* of the sample list table
+
 * Generate an *Assembly group table* which lists a unique name for each group of samples you wish to assemble together. Based on the provided example data set and data table(```NAME```), we've included scripts you can modify to generate your assembly group table. 
 ```
 example assembly group table
