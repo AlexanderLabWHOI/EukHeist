@@ -11,7 +11,7 @@ _General workflow_
 
 # Setup
 Inputs from user:   
-1.  2 input directories storing raw metatranscriptome and metagenome fastq files. If read pairs are nested by sample ID, that is OK.
+1.  2 input directories storing raw metatranscriptome and metagenome fastq files.
 ```
  EukHeist/raw_dir/
  ├── metagenome
@@ -19,20 +19,25 @@ Inputs from user:
 ```
 Using the test data:
 ```
- EukHeist/raw_dir/
- │── metagenome
-   ├── ERR1726828  #This is an example of nested
-   │   ├── ERR1726828_1.fastq.gz
-   │   ├── ERR1726828_2.fastq.gz
-   │   └── md5sum.tab
-   ├── ERR599214
-   │   ├── ERR599214_1.fastq.gz
-   │   ├── ERR599214_2.fastq.gz
-   │   └── md5sum.tab
-   └── ERR868421
-       ├── ERR868421_1.fastq.gz
-       ├── ERR868421_2.fastq.gz
-       └── md5sum.tab
+EukHeist/raw_dir/metagenome
+├── ERR1726828_1.fastq.gz
+├── ERR1726828_2.fastq.gz
+├── ERR599214_1.fastq.gz
+├── ERR599214_2.fastq.gz
+├── ERR868421_1.fastq.gz
+├── ERR868421_2.fastq.gz
+├── generate-metaG-samplelist.r
+└── samplelist-metaG.txt
+
+EukHeist/raw_dir/metatranscriptome
+├── ERR1711907_1.fastq.gz
+├── ERR1711907_2.fastq.gz
+├── ERR1719262_1.fastq.gz
+├── ERR1719262_2.fastq.gz
+├── ERR1740135_1.fastq.gz
+├── ERR1740135_2.fastq.gz
+├── generate-metaT-samplelist.r
+└── samplelist-metaT.txt
 ```
 
 2. Based on the above data sets, provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. See example data table ```NAME```. _(optional)_
@@ -52,8 +57,8 @@ conda activate r_3.5.1
 Rscript generate-metaT-samplelist.r
 
 # Output sample list: 'samplelist-metaT.txt'
-## Repeat for metagenome
-
+## Repeat for metagenome in /EukHeist/raw_dir/metagenome/
+### Output from metagenome script is 'samplelist-metaG.txt'
 ```
 *The last column* of the sample list table _ASSEMBLY_GROUP_ lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines. See final versions of this in ```EukHeist/input/samplelist-meta*-wgroups.txt```
 
@@ -123,7 +128,7 @@ EukHeist
 │   ├── generate-assembly-group-tables.r
 │   ├── samplelist-metaG-wgroups.txt
 │   └── samplelist-metaT-wgroups.txt
-├── raw_dir
+├── raw_dir			
 │   ├── metagenome
 │   └── metatranscriptome
 ├── README.md
