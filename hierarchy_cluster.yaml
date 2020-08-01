@@ -1,0 +1,21 @@
+directories:
+    input: /test-data
+    output: /vortexfs1/omics/alexander/data/EUKHeist_test
+    scratch:  /vortexfs1/scratch/halexander/EUKHeist_scratch
+
+metaG:
+    sample_data_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt # SAMPLE NAME // FQ1 // FQ2
+    assembly_group_table: input/SampleList_ForAssembly_metaG_python.txt # ASSEMBLYGROUP // SAMPLE LIST 
+    folder_name: PRJEB4352 # FOLDER
+metaT:
+    sample_data_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
+    assembly_group_table: input/SampleList_ForAssembly_metaT_python.txt
+    folder_name: PRJEB6609
+
+adapters: input/adapters/illumina-adapters.fa
+
+megahit:
+    cpu: 80
+    min_contig: 1000
+    mem: .95
+    other: --continue --k-list 29,39,59,79,99,119
