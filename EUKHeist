@@ -1,4 +1,4 @@
-configfile: "heirarchy_cluster.yaml"
+configfile: "hierarchy_cluster.yaml"
 
 import io 
 import os
@@ -10,31 +10,31 @@ from snakemake.exceptions import print_exception, WorkflowError
 #----SET VARIABLES----#
 
 
-METAG_ACCESSION = config["metaG_accession"]
-METAT_ACCESSION = config["metaT_accession"]
-METAG_SAMPLES = pd.read_table(config["metaG_ena_table"])
-METAT_SAMPLES = pd.read_table(config["metaT_ena_table"])
-INPUTDIR = config["inputDIR"]
+METAG_ACCESSION = config["metaG"]["folder_name"]
+METAT_ACCESSION = config["metaT"]["folder_name"]
+METAG_SAMPLES = pd.read_table(config["metaG"]["sample_data_table"])
+METAT_SAMPLES = pd.read_table(config["metaT"]["sample_data_table"])
+INPUTDIR = config["directories"]["input"]
 ADAPTERS = config["adapters"]
-METAG_STUDY = list(set(METAG_SAMPLES["study_accession"].tolist()))
-METAT_STUDY = list(set(METAT_SAMPLES["study_accession"].tolist()))
-SCRATCHDIR = config["scratch"]
-OUTPUTDIR = config["outputDIR"]
-METAG_SAMPLELIST = pd.read_table(config["metaG_sample_list"], index_col="Assembly_group")
+METAG_STUDY = list(set(METAG_SAMPLES["SAMPLEID"].tolist()))
+METAT_STUDY = list(set(METAT_SAMPLES["SAMPLEID"].tolist()))
+SCRATCHDIR = config["directories"]["scratch"]
+OUTPUTDIR = config["directories"]["output"]
+METAG_SAMPLELIST = pd.read_table(config["metaG"]["assembly_group_table"], index_col="ASSEMBLY_GROUPING")
 METAG_ASSEMBLYGROUP = list(METAG_SAMPLELIST.index)
-METAT_SAMPLELIST = pd.read_table(config["metaT_sample_list"], index_col="Assembly_group")
+METAT_SAMPLELIST = pd.read_table(config["metaT"]["assembly_group_table"], index_col="ASSEMBLY_GROUPING")
 METAT_ASSEMBLYGROUP= list(METAT_SAMPLELIST.index)
 ASSEMBLYGROUP = METAG_ASSEMBLYGROUP
 
 #----COMPUTE VAR----#
-MEGAHIT_CPU = config["megahit_cpu"]
-MEGAHIT_MIN_CONTIG = config["megahit_min_contig"]
-MEGAHIT_MEM = config["megahit_mem"]
-MEGAHIT_OTHER = config["megahit_other"]
+MEGAHIT_CPU = config["megahit"]["cpu"]
+MEGAHIT_MIN_CONTIG = config["megahit"]["min_contig"]
+MEGAHIT_MEM = config["megahit"]["mem"]
+MEGAHIT_OTHER = config["megahit"]["other"]
 
 #----ACCESSION NUMS----#
-metaG_run_accession = list(METAG_SAMPLES.run_accession)
-metaT_run_accession = list(METAT_SAMPLES.run_accession)
+metaG_run_accession = list(METAG_SAMPLES.SAMPLEID)
+metaT_run_accession = list(METAT_SAMPLES.SAMPLEID)
 
 
 #----FUNCTIONS----#
@@ -70,10 +70,10 @@ def get_sample_list_onegroup(assembly_group_name, SAMPLELIST, STUDY):
 
 #----QC DATA FILE----#
 
-assert(len(METAT_STUDY)==1), 'This metaT ena table contains more than one study accession'
-assert(len(METAG_STUDY)==1), 'This metaG ena table contains more than one study accession' 
-assert(METAG_STUDY[0]==METAG_ACCESSION), 'The study accession provided in the config file does not match the study accession provided in the metaG ena table.'
-assert(METAT_STUDY[0]==METAT_ACCESSION), 'The study accession provided in the config file does not match the study accession provided in the ena table.'
+#assert(len(METAT_STUDY)==1), 'This metaT ena table contains more than one study accession'
+#assert(len(METAG_STUDY)==1), 'This metaG ena table contains more than one study accession' 
+#assert(METAG_STUDY[0]==METAG_ACCESSION), 'The study accession provided in the config file does not match the study accession provided in the metaG ena table.'
+#assert(METAT_STUDY[0]==METAT_ACCESSION), 'The study accession provided in the config file does not match the study accession provided in the ena table.'
 #assert(np.all(METAG_SAMPLELIST.index == METAT_SAMPLELIST.index)), 'The sample list provided for the MetaG does not match the MetaT'
 
 pathlib.Path(OUTPUTDIR).mkdir(parents=True, exist_ok=True)
@@ -85,10 +85,14 @@ localrules: multiqc, copy_bwa_index
 rule all: 
     input:
         # QC DATA
-        fastqcZIP_rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, study = METAG_ACCESSION, sample=metaG_run_accession, num = [1,2]),
-        fastqcZIP_rawT = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, study = METAT_ACCESSION, sample=metaT_run_accession, num = [1,2]),  
-        fastqcZIP_trimmedG = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, study = METAG_ACCESSION, sample=metaG_run_accession, num = [1,2]),  
-        fastqcZIP_trimmedT = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, study = METAT_ACCESSION, sample=metaT_run_accession, num = [1,2]),  
+        fastqcZIP_rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
+                                study = METAG_ACCESSION, sample=metaG_run_accession, num = [1,2]),
+        fastqcZIP_rawT = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
+                                study = METAT_ACCESSION, sample=metaT_run_accession, num = [1,2]),  
+        fastqcZIP_trimmedG = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
+                                    study = METAG_ACCESSION, sample=metaG_run_accession, num = [1,2]),  
+        fastqcZIP_trimmedT = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
+                                    study = METAT_ACCESSION, sample=metaT_run_accession, num = [1,2]),  
         #MULTIQC
         html_rawG = OUTPUTDIR + "/qc/rawG_multiqc.html",
         stats_rawG = OUTPUTDIR + "/qc/rawG_multiqc_general_stats.txt",
@@ -99,15 +103,19 @@ rule all:
         html_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc.html",
         stats_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc_general_stats.txt",
         #TRIM DATA
-        trimmedDataG = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, study = METAG_ACCESSION, sample=metaG_run_accession, num = [1,2]), 
-        trimmedDataT = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, study = METAT_ACCESSION, sample=metaT_run_accession, num = [1,2]), 
+        trimmedDataG = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
+                              study = METAG_ACCESSION, sample=metaG_run_accession, num = [1,2]), 
+        trimmedDataT = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
+                              study = METAT_ACCESSION, sample=metaT_run_accession, num = [1,2]), 
 
         #CALCULATE SOURMASH
-        signatureG = expand("{base}/sourmash/{study}/{sample}.10k.sig", base = SCRATCHDIR, study = METAG_ACCESSION, sample = metaG_run_accession),
+        signatureG = expand("{base}/sourmash/{study}/{sample}.10k.sig", base = SCRATCHDIR, 
+                            study = METAG_ACCESSION, sample = metaG_run_accession),
         signatureT = expand("{base}/sourmash/{study}/{sample}.10k.sig", base = SCRATCHDIR, study = METAT_ACCESSION, sample = metaT_run_accession),
 
         #ASSEMBLE
-        assembly = expand("{base}/megahit/{assembly_group}/final.contigs.fa", base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP),  
+        assembly = expand("{base}/megahit/{assembly_group}/final.contigs.fa", base = OUTPUTDIR, 
+                          assembly_group = METAG_ASSEMBLYGROUP),  
         assembly_copy = expand("{base}/bwa_index/{assembly_group}.fa", base = SCRATCHDIR, assembly_group = METAG_ASSEMBLYGROUP),  
 
         #BWA INDEX
@@ -120,19 +128,24 @@ rule all:
         #BINNING 
 
         #METABAT2 
-        jgi_abund = expand("{base}/metabat2/{assembly_group}/jgi_abund.txt", base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP),
-        metabat2_bins = expand("{base}/metabat2/{assembly_group}/{assembly_group}_bin", base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP),
+        jgi_abund = expand("{base}/metabat2/{assembly_group}/jgi_abund.txt", base = OUTPUTDIR, 
+                           assembly_group = METAG_ASSEMBLYGROUP),
+        metabat2_bins = expand("{base}/metabat2/{assembly_group}/{assembly_group}_bin", base = OUTPUTDIR, 
+                               assembly_group = METAG_ASSEMBLYGROUP),
         #EUKREP
-        eukrep =  expand("{base}/eukrep/{assembly_group}/euk.final.contigs.fa", base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP), 
-        metabat2_bins_euk = expand("{base}/metabat2_euk/{assembly_group}/{assembly_group}_eukbin", base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP),
+        eukrep =  expand("{base}/eukrep/{assembly_group}/euk.final.contigs.fa", base = OUTPUTDIR, 
+                         assembly_group = METAG_ASSEMBLYGROUP), 
+        metabat2_bins_euk = expand("{base}/metabat2_euk/{assembly_group}/{assembly_group}_eukbin", 
+                                   base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP),
         
         #PROTEIN PREDICITION
         #PRODIGAL
-        proteins = expand("{base}/prodigal/{assembly_group}/proteins.faa", base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP), 
+        proteins = expand("{base}/prodigal/{assembly_group}/proteins.faa", base = OUTPUTDIR, 
+                          assembly_group = METAG_ASSEMBLYGROUP), 
 
 rule fastqc:
     input:
-        INPUTDIR + "/{study}/{sample}/{sample}_{num}.fastq.gz"     
+        INPUTDIR + "/{study}/{sample}_{num}.fastq.gz"     
     output:
         html = OUTPUTDIR + '/qc/fastqc/{study}/{sample}_{num}_fastqc.html', 
         zip = OUTPUTDIR + '/qc/fastqc/{study}/{sample}_{num}_fastqc.zip'
@@ -144,8 +157,8 @@ rule fastqc:
 
 rule trimmomatic: 
     input:
-        r1 = INPUTDIR + "/{study}/{sample}/{sample}_1.fastq.gz", 
-        r2 = INPUTDIR + "/{study}/{sample}/{sample}_2.fastq.gz" 
+        r1 = INPUTDIR + "/{study}/{sample}_1.fastq.gz", 
+        r2 = INPUTDIR + "/{study}/{sample}_2.fastq.gz" 
     output:
         r1 = SCRATCHDIR + "/trimmed/{study}/{sample}_1.trimmed.fastq.gz",
         r2 = SCRATCHDIR + "/trimmed/{study}/{sample}_2.trimmed.fastq.gz",
@@ -174,10 +187,14 @@ rule fastqc_trimmed:
 
 rule multiqc:
     input:
-        rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, study = METAG_ACCESSION, sample = metaG_run_accession, num = [1,2]), 
-        trimmedG = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, study = METAG_ACCESSION, sample = metaG_run_accession, num = [1,2]), 
-        rawT = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, study = METAT_ACCESSION, sample = metaT_run_accession, num = [1,2]), 
-        trimmedT = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, study = METAT_ACCESSION, sample = metaT_run_accession, num = [1,2]) 
+        rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
+                      study = METAG_ACCESSION, sample = metaG_run_accession, num = [1,2]), 
+        trimmedG = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
+                          study = METAG_ACCESSION, sample = metaG_run_accession, num = [1,2]), 
+        rawT = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
+                      study = METAT_ACCESSION, sample = metaT_run_accession, num = [1,2]), 
+        trimmedT = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
+                          study = METAT_ACCESSION, sample = metaT_run_accession, num = [1,2]) 
     output:
         html_rawG = OUTPUTDIR + "/qc/rawG_multiqc.html", 
         stats_rawG = OUTPUTDIR + "/qc/rawG_multiqc_general_stats.txt",
