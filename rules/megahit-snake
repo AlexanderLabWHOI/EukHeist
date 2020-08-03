@@ -7,3 +7,29 @@ from snakemake.exceptions import print_exception, WorkflowError
 
 sys.path.insert(1, '../scripts')
 import setupworkspace
+
+rule megahit_assembly: 
+    input: r1 = lambda wildcards: identify_read_groups("{assembly_group}".
+                                                       format(assembly_group=wildcards.assembly_group), METAG_FOLDER), 
+           r2 = lambda wildcards: identify_read_groups("{assembly_group}".
+                                                       format(assembly_group=wildcards.assembly_group), METAG_FOLDER, 
+                                                       FORWARD=False) 
+    output: 
+        os.path.join(OUTPUTDIR, "megahit", "{assembly_group}", "final.contigs.fa")
+    conda: 
+        os.path.join("envs", "megahit.yaml")
+    log: 
+        os.path.join(OUTPUTDIR, "logs", "megahit", "{assembly_group}.log")
+    params: 
+        inputr1 = lambda wildcards, input: ','.join(input.r1),
+        inputr2 = lambda wildcards, input: ','.join(input.r2),
+        min_contig_len = MEGAHIT_MIN_CONTIG,
+        cpu_threads = MEGAHIT_CPU, 
+        memory = MEGAHIT_MEM, 
+        other_options = MEGAHIT_OTHER,
+        megahit_output_name = lambda wildcards: "{}/megahit/{}".format(OUTPUTDIR, wildcards.assembly_group),
+        megahit_output_prefix = lambda wildcards: "{}".format(wildcards.assembly_group),
+    shell: 
+        """
+        megahit -1 {params.inputr1} -2 {params.inputr2} --min-contig-len {params.min_contig_len} --memory {params.memory} -t {params.cpu_threads} --out-dir {params.megahit_output_name} {params.other_options}  >> {log} 2>&1
+        """

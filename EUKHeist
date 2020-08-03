@@ -15,7 +15,14 @@ import setupworkspace
 #----DEFINE RULES----#
 
 localrules: multiqc, copy_bwa_index 
+include: "rules/bwa-snake"
+include: "rules/eukrep-snake"
+include: "rules/megahit-snake"
+include: "rules/metabat-snake"
+include: "rules/prodigal-snake"
 include: "rules/qc-snake"
+include: "rules/sourmash-snake"
+include: "rules/trim-snake"
 
 rule all: 
     input:
@@ -79,77 +86,3 @@ rule all:
         #PRODIGAL
         proteins = expand("{base}/prodigal/{assembly_group}/proteins.faa", base = OUTPUTDIR, 
                           assembly_group = METAG_ASSEMBLYGROUP), 
-
-
-rule compute_sigs:
-    input:
-        r1 = SCRATCHDIR + "/trimmed/{study}/{sample}_1.trimmed.fastq.gz",
-        r2 = SCRATCHDIR + "/trimmed/{study}/{sample}_2.trimmed.fastq.gz" 
-    output: 
-        SCRATCHDIR + "/sourmash/{study}/{sample}.10k.sig"
-    conda: 
-        "envs/sourmash.yaml"
-    log:
-         OUTPUTDIR +  "/logs/sourmash/{study}/sourmash_{sample}.log"
-    shell: 
-        """
-        zcat {input.r1} {input.r2} | sourmash compute -k 21,31,51\
-            --scaled 10000  --track-abundance \
-            -o {output} - 2> {log}
-        """
-
-rule megahit_assembly: 
-    input: r1 = lambda wildcards: identify_read_groups("{assembly_group}".
-                                                       format(assembly_group=wildcards.assembly_group), METAG_FOLDER), 
-           r2 = lambda wildcards: identify_read_groups("{assembly_group}".
-                                                       format(assembly_group=wildcards.assembly_group), METAG_FOLDER, 
-                                                       FORWARD=False) 
-    output: 
-       OUTPUTDIR + "/megahit/{assembly_group}/final.contigs.fa"  
-    conda: 
-        "envs/megahit.yaml"
-    log: 
-        OUTPUTDIR + "/logs/megahit/{assembly_group}.log" 
-    params: 
-        inputr1 = lambda wildcards, input: ','.join(input.r1),
-        inputr2 = lambda wildcards, input: ','.join(input.r2),
-        min_contig_len = MEGAHIT_MIN_CONTIG,
-        cpu_threads = MEGAHIT_CPU, 
-        memory = MEGAHIT_MEM, 
-        other_options = MEGAHIT_OTHER,
-        megahit_output_name = lambda wildcards: "{}/megahit/{}".format(OUTPUTDIR, wildcards.assembly_group),
-        megahit_output_prefix = lambda wildcards: "{}".format(wildcards.assembly_group),
-    shell: 
-        """
-        megahit -1 {params.inputr1} -2 {params.inputr2} --min-contig-len {params.min_contig_len} --memory {params.memory} -t {params.cpu_threads} --out-dir {params.megahit_output_name} {params.other_options}  >> {log} 2>&1
-        """
-
-rule eukrep:
-    input: 
-        assembly = OUTPUTDIR + "/megahit/{assembly_group}/final.contigs.fa",
-    output:
-        OUTPUTDIR + "/eukrep/{assembly_group}/euk.final.contigs.fa"
-    conda: 
-        "envs/EukRep.yaml"
-    log:
-        OUTPUTDIR + "/logs/eukrep/{assembly_group}.eukrep.log"
-    params: 
-        prok = OUTPUTDIR + "/eukrep/{assembly_group}/prok.final.contigs.fa",
-        min_contig = 1000
-    shell: 
-        """
-        EukRep -i {input} -o {output} --prokarya {params.prok} --min {params.min_contig} > {log} 2>&1
-        """
-
-rule prodigal:
-    input:
-        assembly = OUTPUTDIR + "/megahit/{assembly_group}/final.contigs.fa",
-    output: 
-        proteins = OUTPUTDIR + "/prodigal/{assembly_group}/proteins.faa",
-        genes = OUTPUTDIR + "/prodigal/{assembly_group}/genes.gff"
-    conda:
-        "envs/prodigal.yaml"
-    shell:
-        """
-        prodigal -i {input.assembly} -f gff -o {output.genes} -a {output.proteins} -p meta
-        """

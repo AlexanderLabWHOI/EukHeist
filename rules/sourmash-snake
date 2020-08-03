@@ -7,3 +7,20 @@ from snakemake.exceptions import print_exception, WorkflowError
 
 sys.path.insert(1, '../scripts')
 import setupworkspace
+
+rule compute_sigs:
+    input:
+        r1 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_1.trimmed.fastq.gz"),
+        r2 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_2.trimmed.fastq.gz")
+    output: 
+        os.path.join(SCRATCHDIR, "sourmash", "{study}", "{sample}.10k.sig")
+    conda: 
+        os.path.join("envs", "sourmash.yaml")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "sourmash", "{study}", "sourmash_{sample}.log")
+    shell: 
+        """
+        zcat {input.r1} {input.r2} | sourmash compute -k 21,31,51\
+            --scaled 10000  --track-abundance \
+            -o {output} - 2> {log}
+        """
