@@ -94,6 +94,7 @@ pathlib.Path(OUTPUTDIR).mkdir(parents=True, exist_ok=True)
 #----DEFINE RULES----#
 
 localrules: multiqc, copy_bwa_index 
+include: "rules/qc-snake"
 
 rule all: 
     input:
@@ -157,17 +158,6 @@ rule all:
         proteins = expand("{base}/prodigal/{assembly_group}/proteins.faa", base = OUTPUTDIR, 
                           assembly_group = METAG_ASSEMBLYGROUP), 
 
-rule fastqc:
-    input:
-        INPUTDIR + "/{study}/{sample}_{num}.fastq.gz"     
-    output:
-        html = OUTPUTDIR + '/qc/fastqc/{study}/{sample}_{num}_fastqc.html', 
-        zip = OUTPUTDIR + '/qc/fastqc/{study}/{sample}_{num}_fastqc.zip'
-    params: ""
-    log: 
-        OUTPUTDIR + '/logs/fastqc/{study}/{sample}_{num}.log'
-    wrapper:
-        "0.27.1/bio/fastqc"
 
 rule trimmomatic: 
     input:
@@ -186,62 +176,6 @@ rule trimmomatic:
         extra=""
     wrapper:
         "0.27.1/bio/trimmomatic/pe"
-
-rule fastqc_trimmed:
-    input:
-        SCRATCHDIR + "/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz" 
-    output:
-        html = OUTPUTDIR + '/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.html', 
-        zip = OUTPUTDIR + '/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip'
-    params: ""
-    log: 
-        OUTPUTDIR + '/logs/fastqc/{study}/{sample}_{num}.trimmed.log'
-    wrapper:
-        "0.27.1/bio/fastqc"
-
-rule multiqc:
-    input:
-        rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
-                      study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
-        trimmedG = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
-                          study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
-        rawT = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
-                      study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2]), 
-        trimmedT = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
-                          study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2]) 
-    output:
-        html_rawG = OUTPUTDIR + "/qc/rawG_multiqc.html", 
-        stats_rawG = OUTPUTDIR + "/qc/rawG_multiqc_general_stats.txt",
-        html_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc.html", 
-        stats_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc_general_stats.txt",
-        html_rawT = OUTPUTDIR + "/qc/rawT_multiqc.html", 
-        stats_rawT = OUTPUTDIR + "/qc/rawT_multiqc_general_stats.txt",
-        html_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc.html", 
-        stats_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc_general_stats.txt"
-    conda: 
-        "envs/multiqc-env.yaml"
-    shell: 
-        """
-        multiqc -n multiqc.html {input.rawG}
-        mv multiqc.html {output.html_rawG}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_rawG} 
-        rm -rf multiqc_data
-
-        multiqc -n multiqc.html {input.trimmedG}
-        mv multiqc.html {output.html_trimmedG}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedG} 
-        rm -rf multiqc_data
-        
-        multiqc -n multiqc.html {input.trimmedT}
-        mv multiqc.html {output.html_trimmedT}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedT} 
-        rm -rf multiqc_data
-        
-        multiqc -n multiqc.html {input.trimmedT}
-        mv multiqc.html {output.html_trimmedT}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedT} 
-        rm -rf multiqc_data
-        """ 
 
 rule compute_sigs:
     input:
