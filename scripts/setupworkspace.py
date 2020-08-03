@@ -6,7 +6,7 @@ import pathlib
 import yaml
 from snakemake.exceptions import print_exception, WorkflowError
 
-with open("hierarchy_cluster.yaml") as f:
+with open("../hierarchy_cluster.yaml") as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 #----SET VARIABLES----#
