@@ -15,7 +15,7 @@ rule prodigal:
         proteins = os.path.join(OUTPUTDIR, "prodigal", "{assembly_group}", "proteins.faa"),
         genes = os.path.join(OUTPUTDIR, "prodigal", "{assembly_group}", "genes.gff")
     conda:
-        os.path.join("envs", "prodigal.yaml")
+        os.path.join("..", "envs", "prodigal.yaml")
     shell:
         """
         prodigal -i {input.assembly} -f gff -o {output.genes} -a {output.proteins} -p meta

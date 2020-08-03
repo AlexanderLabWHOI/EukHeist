@@ -11,8 +11,7 @@ sys.path.insert(1, 'scripts')
 pd.options.display.max_colwidth = 100
 
 import setupworkspace
-
-#----DEFINE RULES----#
+from setupworkspace import *
 
 localrules: multiqc, copy_bwa_index 
 include: "rules/bwa-snake"
@@ -23,6 +22,11 @@ include: "rules/prodigal-snake"
 include: "rules/qc-snake"
 include: "rules/sourmash-snake"
 include: "rules/trim-snake"
+    
+print(metaG_run_accession)
+print("meta'd", flush = True)
+print(metaG_run_accession[0], flush = True)
+print(identify_read_groups("Group1", "metaG", FORWARD=True), flush = True)
 
 rule all: 
     input:
@@ -46,9 +50,9 @@ rule all:
         stats_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc_general_stats.txt",
         #TRIM DATA
         trimmedDataG = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
-                              study = METAG_FOLDER, sample=metaG_run_accession, num = [1,2]), 
+                              study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
         trimmedDataT = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
-                              study = METAT_FOLDER, sample=metaT_run_accession, num = [1,2]), 
+                              study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2]), 
 
         #CALCULATE SOURMASH
         signatureG = expand("{base}/sourmash/{study}/{sample}.10k.sig", base = SCRATCHDIR, 

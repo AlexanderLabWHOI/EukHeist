@@ -7,6 +7,7 @@ from snakemake.exceptions import print_exception, WorkflowError
 
 sys.path.insert(1, '../scripts')
 import setupworkspace
+from setupworkspace import *
 
 rule fastqc:
     input:
@@ -24,8 +25,8 @@ rule fastqc_trimmed:
     input:
         os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_{num}.trimmed.fastq.gz") 
     output:
-        html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}/{sample}_{num}.trimmed_fastqc.html"), 
-        zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}/{sample}_{num}.trimmed_fastqc.zip")
+        html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}.trimmed_fastqc.html"), 
+        zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}.trimmed_fastqc.zip")
     params: ""
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.trimmed.log")
@@ -34,18 +35,18 @@ rule fastqc_trimmed:
 
 rule multiqc:
     input:
-        rawG = expand(os.path.join("{base}", "qc", "fastqc", "{study}", 
-                                   "{sample}_{num}_fastqc.zip"), base = OUTPUTDIR, 
+        rawG = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
+                                   "{sample}_{num}_fastqc.zip"), base = OUTPUTDIR,\
                       study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
-        trimmedG = expand(os.path.join("{base}", "qc", "fastqc", "{study}", 
-                                       "{sample}_{num}.trimmed_fastqc.zip"), base = OUTPUTDIR, 
+        trimmedG = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
+                                       "{sample}_{num}.trimmed_fastqc.zip"), base = OUTPUTDIR, \
                           study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
-        rawT = expand(os.path.join("{base}", "qc", "fastqc", "{study}", 
-                                   "{sample}_{num}_fastqc.zip"), base = OUTPUTDIR, 
+        rawT = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
+                                   "{sample}_{num}_fastqc.zip"), base = OUTPUTDIR,\
                       study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2]), 
-        trimmedT = expand(os.path.join("{base}", "qc", "fastqc", "{study}", 
-                                       "{sample}_{num}.trimmed_fastqc.zip"), base = OUTPUTDIR, 
-                          study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2]) 
+        trimmedT = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
+                                       "{sample}_{num}.trimmed_fastqc.zip"), base = OUTPUTDIR,\
+                          study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2])
     output:
         html_rawG = os.path.join(OUTPUTDIR, "qc", "rawG_multiqc.html"), 
         stats_rawG = os.path.join(OUTPUTDIR, "qc", "rawG_multiqc_general_stats.txt"),
@@ -54,9 +55,9 @@ rule multiqc:
         html_rawT = os.path.join(OUTPUTDIR, "qc", "rawT_multiqc.html"), 
         stats_rawT = os.path.join(OUTPUTDIR, "qc", "rawT_multiqc_general_stats.txt"),
         html_trimmedT = os.path.join(OUTPUTDIR, "qc", "trimmedT_multiqc.html"), 
-        stats_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc_general_stats.txt")
+        stats_trimmedT = os.path.join(OUTPUTDIR, "qc", "trimmedT_multiqc_general_stats.txt")
     conda: 
-        "envs/multiqc-env.yaml"
+        os.path.join("..", "envs", "multiqc-env.yaml")
     shell: 
         """
         multiqc -n multiqc.html {input.rawG}

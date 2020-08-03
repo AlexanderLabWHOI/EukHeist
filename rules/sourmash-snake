@@ -15,7 +15,7 @@ rule compute_sigs:
     output: 
         os.path.join(SCRATCHDIR, "sourmash", "{study}", "{sample}.10k.sig")
     conda: 
-        os.path.join("envs", "sourmash.yaml")
+        os.path.join("..", "envs", "sourmash.yaml")
     log:
         os.path.join(OUTPUTDIR, "logs", "sourmash", "{study}", "sourmash_{sample}.log")
     shell: 

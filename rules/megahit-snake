@@ -7,17 +7,18 @@ from snakemake.exceptions import print_exception, WorkflowError
 
 sys.path.insert(1, '../scripts')
 import setupworkspace
+from setupworkspace import *
 
 rule megahit_assembly: 
-    input: r1 = lambda wildcards: identify_read_groups("{assembly_group}".
+    input: r1 = lambda wildcards: identify_read_groups("{assembly_group}".\
                                                        format(assembly_group=wildcards.assembly_group), METAG_FOLDER), 
-           r2 = lambda wildcards: identify_read_groups("{assembly_group}".
+           r2 = lambda wildcards: identify_read_groups("{assembly_group}".\
                                                        format(assembly_group=wildcards.assembly_group), METAG_FOLDER, 
                                                        FORWARD=False) 
     output: 
         os.path.join(OUTPUTDIR, "megahit", "{assembly_group}", "final.contigs.fa")
     conda: 
-        os.path.join("envs", "megahit.yaml")
+        os.path.join("..", "envs", "megahit.yaml")
     log: 
         os.path.join(OUTPUTDIR, "logs", "megahit", "{assembly_group}.log")
     params: 

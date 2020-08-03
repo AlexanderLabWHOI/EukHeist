@@ -14,7 +14,7 @@ rule eukrep:
     output:
         os.path.join(OUTPUTDIR, "eukrep", "{assembly_group}", "euk.final.contigs.fa")
     conda: 
-        os.path.join("envs", "EukRep.yaml")
+        os.path.join("..", "envs", "EukRep.yaml")
     log:
         os.path.join(OUTPUTDIR, "logs", "eukrep", "{assembly_group}.eukrep.log")
     params: 

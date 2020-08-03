@@ -16,7 +16,7 @@ rule metabat_abundance:
     output:
         os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "jgi_abund.txt")
     conda:
-         os.path.join("envs", "metabat-env.yaml")
+         os.path.join("..", "envs", "metabat-env.yaml")
     log:
         os.path.join(OUTPUTDIR, "logs", "metabat2", "{assembly_group}.abun.log")
     shell:
@@ -31,7 +31,7 @@ rule metabat_binning:
     output:
         os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "{assembly_group}_bin")
     conda:
-         os.path.join("envs", "metabat-env.yaml")
+         os.path.join("..", "envs", "metabat-env.yaml")
     params: 
         other = "--saveCls",
         threads = 8,
@@ -52,7 +52,7 @@ rule metabat_binning_euk:
     output:
         os.path.join(OUTPUTDIR, "metabat2_euk", "{assembly_group}", "{assembly_group}_eukbin")
     conda:
-         os.path.join("envs", "metabat-env.yaml")
+         os.path.join("..", "envs", "metabat-env.yaml")
     params:
         other = "--saveCls",
         threads = 8

@@ -36,14 +36,17 @@ if len(sample_names) < 1: # if no sample names are provided
         sample_names = longer_name
     else:
         sample_names = available_files
-    assembly_groups = ["Group1"] * len(sample_names)
+    assembly_groups = ["Group1"] * len(sample_names) # default to all in Group 1
+    
+if len(assembly_groups) < 1:
+    assembly_groups = ["Group1"] * len(sample_names) # default to all in Group 1
         
 for ind in range(len(sample_names)):
     s = sample_names[ind]
     a = assembly_groups[ind] 
     
     matches = [curr for curr in available_files if s in curr]
-    if len(matches) == 2:
+    if (len(matches) == 2) & (s not in list(sample_file.SAMPLEID)):
         sorted_matches = sorted(matches, reverse = False)
         curr_frame = pd.DataFrame({"SAMPLEID": s, "FULLPATH": args.sample_dir, 
                       "R1": sorted_matches[0], "R2": sorted_matches[1],
@@ -57,7 +60,7 @@ for ind in range(len(sample_names)):
     
 
 assembly_file = pd.DataFrame({"ASSEMBLY_GROUPING": list(assembly_dict.keys()), 
-                              "SAMPLE_LIST": list(assembly_dict.values())})
+                              "SAMPLE_LIST": [",".join(curr) for curr in list(assembly_dict.values())]})
    
 os.system("mkdir -p " + os.path.dirname(args.output))
 assembly_file.to_csv(args.output + "_assembly_file.tsv", sep = "\t")
