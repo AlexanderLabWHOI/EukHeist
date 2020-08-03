@@ -1,7 +1,7 @@
 directories:
     input: test-data #/vortexfs1/omics/alexander/data/TARA/test_data #/test-data
     output: /vortexfs1/omics/alexander/akrinos/EUKHeist_test
-    scratch:  /vortexfs1/scratch/alexander/EUKHeist_scratch
+    scratch:  /vortexfs1/scratch/akrinos/EUKHeist_scratch
 
 metaG:
     sample_data_table: test-data/samplelist-metaG-wgroups.txt #input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt #input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt # SAMPLE NAME // FQ1 // FQ2

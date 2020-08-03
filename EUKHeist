@@ -363,12 +363,14 @@ rule metabat_binning:
          "envs/metabat-env.yaml"
     params: 
         other = "--saveCls",
-        threads = 8
+        threads = 8,
+        bin_out = OUTPUTDIR + "/metabat2/{assembly_group}/{assembly_group}_bin"
     log:
         OUTPUTDIR + "/logs/metabat2/{assembly_group}.bin.log"
     shell:
         """
         metabat2 {params.other} --numThreads {params.threads} -i {input.assembly} -a {input.depth} -o {output} > {log} 2>&1
+        touch {output}
         """
 
 rule eukrep:
@@ -404,6 +406,7 @@ rule metabat_binning_euk:
     shell:
         """
         metabat2 {params.other} --numThreads {params.threads} -i {input.assembly} -a {input.depth} -o {output} > {log} 2>&1
+        touch {output}
         """
 
 rule prodigal:
