@@ -124,42 +124,6 @@ rule megahit_assembly:
         megahit -1 {params.inputr1} -2 {params.inputr2} --min-contig-len {params.min_contig_len} --memory {params.memory} -t {params.cpu_threads} --out-dir {params.megahit_output_name} {params.other_options}  >> {log} 2>&1
         """
 
-rule metabat_abundance:
-    input:
-        lambda wildcards: get_sample_list_onegroup("{assembly_group}".
-                                                   format(assembly_group=wildcards.assembly_group), METAG_SAMPLELIST, 
-                                                   METAG_FOLDER)
-    output:
-        OUTPUTDIR + "/metabat2/{assembly_group}/jgi_abund.txt"
-    conda:
-         "envs/metabat-env.yaml"
-    log:
-        OUTPUTDIR + "/logs/metabat2/{assembly_group}.abun.log"
-    shell:
-        """
-        jgi_summarize_bam_contig_depths --outputDepth {output} {input} > {log} 2>&1
-        """
-
-rule metabat_binning:
-    input:
-        assembly = OUTPUTDIR + "/megahit/{assembly_group}/final.contigs.fa",
-        depth = OUTPUTDIR + "/metabat2/{assembly_group}/jgi_abund.txt"
-    output:
-        OUTPUTDIR + "/metabat2/{assembly_group}/{assembly_group}_bin"
-    conda:
-         "envs/metabat-env.yaml"
-    params: 
-        other = "--saveCls",
-        threads = 8,
-        bin_out = OUTPUTDIR + "/metabat2/{assembly_group}/{assembly_group}_bin"
-    log:
-        OUTPUTDIR + "/logs/metabat2/{assembly_group}.bin.log"
-    shell:
-        """
-        metabat2 {params.other} --numThreads {params.threads} -i {input.assembly} -a {input.depth} -o {output} > {log} 2>&1
-        touch {output}
-        """
-
 rule eukrep:
     input: 
         assembly = OUTPUTDIR + "/megahit/{assembly_group}/final.contigs.fa",
@@ -175,25 +139,6 @@ rule eukrep:
     shell: 
         """
         EukRep -i {input} -o {output} --prokarya {params.prok} --min {params.min_contig} > {log} 2>&1
-        """
-
-rule metabat_binning_euk:
-    input:
-        assembly = OUTPUTDIR + "/eukrep/{assembly_group}/euk.final.contigs.fa",
-        depth = OUTPUTDIR + "/metabat2/{assembly_group}/jgi_abund.txt"
-    output:
-        OUTPUTDIR + "/metabat2_euk/{assembly_group}/{assembly_group}_eukbin"
-    conda:
-         "envs/metabat-env.yaml"
-    params:
-        other = "--saveCls",
-        threads = 8
-    log:
-        OUTPUTDIR + "/logs/metabat2/{assembly_group}.eukbin.log"
-    shell:
-        """
-        metabat2 {params.other} --numThreads {params.threads} -i {input.assembly} -a {input.depth} -o {output} > {log} 2>&1
-        touch {output}
         """
 
 rule prodigal:
