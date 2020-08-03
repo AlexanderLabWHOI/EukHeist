@@ -1,0 +1,27 @@
+import io 
+import os
+import pandas as pd
+import numpy as np
+import pathlib
+from snakemake.exceptions import print_exception, WorkflowError
+
+sys.path.insert(1, '../scripts')
+import setupworkspace
+
+rule trimmomatic: 
+    input:
+        r1 = os.path.join(INPUTDIR, "{study}", "{sample}_1.fastq.gz"), 
+        r2 = os.path.join(INPUTDIR, "{study}", "{sample}_2.fastq.gz")
+    output:
+        r1 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_1.trimmed.fastq.gz"),
+        r2 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_2.trimmed.fastq.gz"),
+        # reads where trimming entirely removed the mate
+        r1_unpaired = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_1.unpaired.fastq.gz"),
+        r2_unpaired = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_2.unpaired.fastq.gz")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "trimmomatic", "{study}", "{sample}.log")
+    params:
+        trimmer = ["ILLUMINACLIP:{}:2:30:7".format(ADAPTERS), "LEADING:2", "TRAILING:2", "SLIDINGWINDOW:4:2", "MINLEN:50"],
+        extra = ""
+    wrapper:
+        "0.27.1/bio/trimmomatic/pe"
