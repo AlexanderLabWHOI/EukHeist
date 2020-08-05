@@ -15,11 +15,15 @@ rule fastqc:
     output:
         html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}_fastqc.html"), 
         zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}_fastqc.zip")
-    params: ""
+    params: 
+        fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}")
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.log")
-    wrapper:
-        "0.27.1/bio/fastqc"
+    shell:
+        mkdir -p {params.fastqdir}
+        fastqc {input} -o {params.fastqdir} >> {log} 2>&1
+        mv {params.outname}_fastqc.html {output.html}
+        mv {params.outname}_fastqc.zip {output.zip}
 
 rule fastqc_trimmed:
     input:
@@ -27,11 +31,15 @@ rule fastqc_trimmed:
     output:
         html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}.trimmed_fastqc.html"), 
         zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}.trimmed_fastqc.zip")
-    params: ""
+    params: 
+        fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}")
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.trimmed.log")
     wrapper:
-        "0.27.1/bio/fastqc"
+        mkdir -p {params.fastqdir}
+        fastqc {input} -o {params.fastqdir} >> {log} 2>&1
+        mv {params.outname}_fastqc.html {output.html}
+        mv {params.outname}_fastqc.zip {output.zip}
 
 rule multiqc:
     input:
