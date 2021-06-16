@@ -1,0 +1,65 @@
+import io 
+import os
+import pandas as pd
+import numpy as np
+import pathlib
+from snakemake.exceptions import print_exception, WorkflowError
+
+sys.path.insert(1, '../scripts')
+import setupworkspace
+
+rule metabat_abundance:
+    input:
+        lambda wildcards: get_sample_list_onegroup("{assembly_group}".
+                                                   format(assembly_group=wildcards.assembly_group), METAG_SAMPLELIST, 
+                                                   METAG_FOLDER)
+    output:
+        os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "jgi_abund.txt")
+    conda:
+         os.path.join("..", "envs", "metabat-env.yaml")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "metabat2", "{assembly_group}.abun.log")
+    shell:
+        """
+        jgi_summarize_bam_contig_depths --outputDepth {output} {input} > {log} 2>&1
+        """
+
+rule metabat_binning:
+    input:
+        assembly = os.path.join(OUTPUTDIR, "megahit", "{assembly_group}", "final.contigs.fa"),
+        depth = os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "jgi_abund.txt")
+    output:
+        os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "{assembly_group}_bin")
+    conda:
+         os.path.join("..", "envs", "metabat-env.yaml")
+    params: 
+        other = "--saveCls",
+        threads = 8,
+        bin_out = os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "{assembly_group}_bin")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "metabat2", "{assembly_group}.bin.log")
+    shell:
+        """
+        metabat2 {params.other} --numThreads {params.threads} -i {input.assembly} -a {input.depth} -o {output} > {log} 2>&1
+        touch {output}
+        """
+
+
+rule metabat_binning_euk:
+    input:
+        assembly = os.path.join(OUTPUTDIR, "eukrep", "{assembly_group}", "euk.final.contigs.fa"),
+        depth = os.path.join(OUTPUTDIR, "metabat2", "{assembly_group}", "jgi_abund.txt")
+    output:
+        os.path.join(OUTPUTDIR, "metabat2_euk", "{assembly_group}", "{assembly_group}_eukbin")
+    conda:
+         os.path.join("..", "envs", "metabat-env.yaml")
+    params:
+        other = "--saveCls",
+        threads = 8
+    log:
+        os.path.join(OUTPUTDIR, "logs", "metabat2", "{assembly_group}.eukbin.log")
+    shell:
+        """
+        metabat2 {params.other} --numThreads {params.threads} -i {input.assembly} -a {input.depth} -o {output} > {log} 2>&1
+        touch {output}
+        """

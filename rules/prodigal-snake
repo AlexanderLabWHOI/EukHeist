@@ -1,0 +1,22 @@
+import io 
+import os
+import pandas as pd
+import numpy as np
+import pathlib
+from snakemake.exceptions import print_exception, WorkflowError
+
+sys.path.insert(1, '../scripts')
+import setupworkspace
+
+rule prodigal:
+    input:
+        assembly = os.path.join(OUTPUTDIR, "megahit", "{assembly_group}", "final.contigs.fa"),
+    output: 
+        proteins = os.path.join(OUTPUTDIR, "prodigal", "{assembly_group}", "proteins.faa"),
+        genes = os.path.join(OUTPUTDIR, "prodigal", "{assembly_group}", "genes.gff")
+    conda:
+        os.path.join("..", "envs", "prodigal.yaml")
+    shell:
+        """
+        prodigal -i {input.assembly} -f gff -o {output.genes} -a {output.proteins} -p meta
+        """

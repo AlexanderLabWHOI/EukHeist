@@ -1,0 +1,64 @@
+import io 
+import os
+import pandas as pd
+import numpy as np
+import pathlib
+from snakemake.exceptions import print_exception, WorkflowError
+
+sys.path.insert(1, '../scripts')
+import setupworkspace
+from setupworkspace import *
+
+rule bwa_index:
+    input:
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa")
+    output:
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.amb"),
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.ann"),
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.bwt"),
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.pac"),
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.sa")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "bwa_index", "{assembly_group}.log")
+    params:
+        algorithm = "bwtsw"
+    conda:
+        os.path.join("..", "envs", "metabat-env.yaml")
+    shell:
+        """
+        bwa index {input} 2> {log}
+        """
+
+rule copy_bwa_index:
+    input: 
+        os.path.join(OUTPUTDIR, "megahit", "{assembly_group}", "final.contigs.fa")
+    output:
+        os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa")
+    shell:
+        """
+        cp {input} {output}
+        """
+
+rule bwa_mem:
+    input:
+        amb = os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.amb"), 
+        ann = os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.ann"), 
+        bwt = os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.bwt"), 
+        pac = os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.pac"),  
+        sa = os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa.sa"), 
+        reference = os.path.join(SCRATCHDIR, "bwa_index", "{assembly_group}.fa"), 
+        r1 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_1.trimmed.fastq.gz"),
+        r2 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_2.trimmed.fastq.gz"), 
+    output:
+        os.path.join(SCRATCHDIR, "mapping", "{assembly_group}", "{study}", "{sample}.bam")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "bwa_mem", "{assembly_group}", "{study}", "{sample}.log")
+    params: 
+        extra="", 
+        threads = 8
+    conda: 
+        os.path.join("..", "envs", "metabat-env.yaml")
+    shell:
+        """ 
+        bwa mem -t {params.threads} {params.extra} {input.reference} {input.r1} {input.r2} | samtools sort -o {output} - >> {log} 2>&1
+        """ 

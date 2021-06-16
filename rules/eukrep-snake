@@ -1,0 +1,26 @@
+import io 
+import os
+import pandas as pd
+import numpy as np
+import pathlib
+from snakemake.exceptions import print_exception, WorkflowError
+
+sys.path.insert(1, '../scripts')
+import setupworkspace
+
+rule eukrep:
+    input: 
+        assembly = os.path.join(OUTPUTDIR, "megahit", "{assembly_group}", "final.contigs.fa"),
+    output:
+        os.path.join(OUTPUTDIR, "eukrep", "{assembly_group}", "euk.final.contigs.fa")
+    conda: 
+        os.path.join("..", "envs", "EukRep.yaml")
+    log:
+        os.path.join(OUTPUTDIR, "logs", "eukrep", "{assembly_group}.eukrep.log")
+    params: 
+        prok = os.path.join(OUTPUTDIR, "eukrep", "{assembly_group}", "prok.final.contigs.fa"),
+        min_contig = 1000
+    shell: 
+        """
+        EukRep -i {input} -o {output} --prokarya {params.prok} --min {params.min_contig} > {log} 2>&1
+        """
