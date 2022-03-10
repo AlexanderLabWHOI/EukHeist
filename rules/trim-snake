@@ -8,10 +8,32 @@ from snakemake.exceptions import print_exception, WorkflowError
 sys.path.insert(1, '../scripts')
 import setupworkspace
 
+def get_filenames_trim(sample, study, leftorright):
+    filenames = os.listdir(os.path.join(INPUTDIR, study))
+    fastqnames = os.listdir(os.path.join(INPUTDIR, study))
+    matchednames = []
+    indexsample = [ind for ind in range(0,len(filenames)) if (sample in filenames[ind])][0]
+    sample_fastq = filenames[indexsample].split(".")[0]
+    for fcurr in filenames: 
+        if sample in fcurr:
+            matchednames.append(fcurr)
+    matchednames = sorted(matchednames)
+    if leftorright == "left":
+        return matchednames[0]
+    else:
+        if len(matchednames) > 1:
+            return matchednames[1]   
+        else:
+            return ""
+
 rule trimmomatic: 
     input:
-        r1 = os.path.join(INPUTDIR, "{study}", "{sample}_1.fastq.gz"), 
-        r2 = os.path.join(INPUTDIR, "{study}", "{sample}_2.fastq.gz")
+        r1 = lambda filename: expand(os.path.join(INPUTDIR, "{study}", "{sampnames}"),\
+                                     study=filename.study,
+                                     sampnames = get_filenames_trim(filename.sample, filename.study, "left")),
+        r2 = lambda filename: expand(os.path.join(INPUTDIR, "{study}", "{sampnames}"),\
+                                     study=filename.study,
+                                     sampnames = get_filenames_trim(filename.sample, filename.study, "right")),
     output:
         r1 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_1.trimmed.fastq.gz"),
         r2 = os.path.join(SCRATCHDIR, "trimmed", "{study}", "{sample}_2.trimmed.fastq.gz"),
@@ -24,4 +46,6 @@ rule trimmomatic:
         trimmer = ["ILLUMINACLIP:{}:2:30:7".format(ADAPTERS), "LEADING:2", "TRAILING:2", "SLIDINGWINDOW:4:2", "MINLEN:50"],
         extra = ""
     shell:
+        """
         trimmomatic PE {input.r1} {input.r2} {output.r1} {output.r1_unpaired} {output.r2} {output.r2_unpaired} {params.trimmer} >> {log} 2>&1
+        """

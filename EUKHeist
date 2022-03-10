@@ -28,7 +28,16 @@ print("meta'd", flush = True)
 print(metaG_run_accession[0], flush = True)
 print(identify_read_groups("Group1", "metaG", FORWARD=True), flush = True)
 
-rule all: 
+MODE = config["mode"]
+outlog = "metaT_and_metaG.log"
+if MODE == "metaG":
+    outlog = "metaG_only.log"
+
+rule all:
+    input:
+        outfile = os.path.join(OUTPUTDIR, outlog)
+
+rule metaT_and_metaG: 
     input:
         # QC DATA
         fastqcZIP_rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
@@ -90,3 +99,71 @@ rule all:
         #PRODIGAL
         proteins = expand("{base}/prodigal/{assembly_group}/proteins.faa", base = OUTPUTDIR, 
                           assembly_group = METAG_ASSEMBLYGROUP), 
+    output:
+        outfile = os.path.join(OUTPUTDIR, "metaT_and_metaG.log")
+    run:
+        run_info = pd.DataFrame([""]*len(METAG_SAMPLE_TABLE.columns), columns=METAG_SAMPLE_TABLE.columns)
+        run_info.iloc[0,1] = "EUKHeist completed its run on " + str(date.today()) + " in metaG-only mode"
+        outputtab = pd.concat(run_info,METAG_SAMPLE_TABLE)
+        outputtab.to_csv(output.outfile)
+                          
+rule metaG_only: 
+    input:
+        # QC DATA
+        fastqcZIP_rawG = expand("{base}/qc/fastqc/{study}/{sample}_{num}_fastqc.zip", base = OUTPUTDIR, 
+                                study = METAG_FOLDER, sample=metaG_run_accession, num = [1,2]),
+        fastqcZIP_trimmedG = expand("{base}/qc/fastqc/{study}/{sample}_{num}.trimmed_fastqc.zip", base = OUTPUTDIR, 
+                                    study = METAG_FOLDER, sample=metaG_run_accession, num = [1,2]),  
+        #MULTIQC
+        html_rawG = OUTPUTDIR + "/qc/rawG_multiqc.html",
+        stats_rawG = OUTPUTDIR + "/qc/rawG_multiqc_general_stats.txt",
+        html_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc.html",
+        stats_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc_general_stats.txt",
+        
+        #TRIM DATA
+        trimmedDataG = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
+                              study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
+
+        #CALCULATE SOURMASH
+        signatureG = expand("{base}/sourmash/{study}/{sample}.10k.sig", base = SCRATCHDIR, 
+                            study = METAG_FOLDER, sample = metaG_run_accession),
+
+        #ASSEMBLE
+        assembly = expand("{base}/megahit/{assembly_group}/final.contigs.fa", base = OUTPUTDIR, 
+                          assembly_group = METAG_ASSEMBLYGROUP),  
+        assembly_copy = expand("{base}/bwa_index/{assembly_group}.fa", base = SCRATCHDIR, 
+                          assembly_group = METAG_ASSEMBLYGROUP),  
+
+        #BWA INDEX
+        bwa_index = expand("{base}/bwa_index/{assembly_group}.fa.{bwa_tail}", base = SCRATCHDIR, 
+                           assembly_group = METAG_ASSEMBLYGROUP, bwa_tail = ["amb", "ann", "bwt", "pac", "sa"]), 
+
+        #BWA MAPPING:
+        bwa_memG = get_sample_list(METAG_ASSEMBLYGROUP, METAG_SAMPLELIST, METAG_FOLDER), 
+        bwa_memT = get_sample_list(METAT_ASSEMBLYGROUP, METAT_SAMPLELIST, METAT_FOLDER), 
+
+        #BINNING 
+
+        #METABAT2 
+        jgi_abund = expand("{base}/metabat2/{assembly_group}/jgi_abund.txt", base = OUTPUTDIR, 
+                           assembly_group = METAG_ASSEMBLYGROUP),
+        metabat2_bins = expand("{base}/metabat2/{assembly_group}/{assembly_group}_bin", base = OUTPUTDIR, 
+                               assembly_group = METAG_ASSEMBLYGROUP),
+        #EUKREP
+        eukrep =  expand("{base}/eukrep/{assembly_group}/euk.final.contigs.fa", base = OUTPUTDIR, 
+                         assembly_group = METAG_ASSEMBLYGROUP), 
+        metabat2_bins_euk = expand("{base}/metabat2_euk/{assembly_group}/{assembly_group}_eukbin", 
+                                   base = OUTPUTDIR, assembly_group = METAG_ASSEMBLYGROUP),
+        
+        #PROTEIN PREDICITION
+        #PRODIGAL
+        proteins = expand("{base}/prodigal/{assembly_group}/proteins.faa", base = OUTPUTDIR, 
+                          assembly_group = METAG_ASSEMBLYGROUP), 
+    output:
+        outfile = os.path.join(OUTPUTDIR, "metaG_only.log")
+    run:
+        run_info = pd.DataFrame([""]*len(METAG_SAMPLE_TABLE.columns), columns=METAG_SAMPLE_TABLE.columns)
+        run_info.iloc[0,1] = "EUKHeist completed its run on " + str(date.today()) + " in metaG-only mode"
+        outputtab = pd.concat(run_info,METAG_SAMPLE_TABLE)
+        outputtab.to_csv(output.outfile)
+        

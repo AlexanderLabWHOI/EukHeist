@@ -16,6 +16,7 @@ metaT:
     folder_name: metaT #PRJEB6609
 
 adapters: input/adapters/illumina-adapters.fa
+mode: metaG
 
 megahit:
     cpu: 80

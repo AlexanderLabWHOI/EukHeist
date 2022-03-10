@@ -9,9 +9,29 @@ sys.path.insert(1, '../scripts')
 import setupworkspace
 from setupworkspace import *
 
+def get_filenames(sample, study, leftorright):
+    filenames = os.listdir(os.path.join(INPUTDIR, study))
+    fastqnames = os.listdir(os.path.join(INPUTDIR, study))
+    matchednames = []
+    print(filenames,flush=True)
+    indexsample = [ind for ind in range(0,len(filenames)) if (sample in filenames[ind])][0]
+    sample_fastq = filenames[indexsample].split(".")[0]
+    for fcurr in filenames: 
+        if sample in fcurr:
+            matchednames.append(fcurr)
+    matchednames = sorted(matchednames)
+    if int(leftorright.strip()) == 1:
+        return matchednames[0]
+    else:
+        return matchednames[1]
+
+def splitfilenames(inname):
+    return inname.split(".")[0]
+
 rule fastqc:
     input:
-        os.path.join(INPUTDIR, "{study}", "{sample}_{num}.fastq.gz")   
+        (lambda filename: expand(os.path.join(INPUTDIR, "{study}", "{sampnames}"),\
+        study = filename.study, sampnames = get_filenames(filename.sample, filename.study, filename.num)))
     output:
         html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}_fastqc.html"), 
         zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}_fastqc.zip")
@@ -20,10 +40,12 @@ rule fastqc:
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.log")
     shell:
+        """
         mkdir -p {params.fastqdir}
         fastqc {input} -o {params.fastqdir} >> {log} 2>&1
         mv {params.outname}_fastqc.html {output.html}
         mv {params.outname}_fastqc.zip {output.zip}
+        """
 
 rule fastqc_trimmed:
     input:
@@ -35,11 +57,13 @@ rule fastqc_trimmed:
         fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}")
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.trimmed.log")
-    wrapper:
+    shell:
+        """
         mkdir -p {params.fastqdir}
         fastqc {input} -o {params.fastqdir} >> {log} 2>&1
         mv {params.outname}_fastqc.html {output.html}
         mv {params.outname}_fastqc.zip {output.zip}
+        """
 
 rule multiqc:
     input:
