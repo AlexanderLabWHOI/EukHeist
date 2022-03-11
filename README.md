@@ -2,16 +2,25 @@
 ## Snakemake-based workflow for the retrieval of Eukaryotic (and other) genomes from metagenomes
 
 
-# Introduction
+# 1.0 Introduction
 Molecular and genomic approaches, particularly those applied to whole, mixed communities (e.g. metagenomics, metatranscriptomics), have shed light on the ecological roles, evolutionary histories, and physiological capabilities of these organisms. We developed a scalable and reproducible pipeline to facilitate the retrieval, taxonomic assignment, and annotation of eukaryotic metagenome assembled genomes (MAGs) from mixed community metagenomes. The below pipeline uses **EukHeist** to retrieve eukaryotic (and other) metagenome assembled genomes from the *Tara Oceans* global dataset.
 
 _General workflow_
 
 ![flowchart](input/flowchart1.png)
 
-# Setup
-Inputs from user:   
-## 1.  2 input directories storing raw metatranscriptome and metagenome fastq files.
+
+_User workflow_
+* get set up on HPC with snakemake
+* input sample list, assembly group
+* Run tests and confirm rules in pipeline you plan to use
+
+
+# 2.0 Setup
+
+Need full path of raw metagenome and metatranscriptome sequences. 
+
+## 2.1 Structure input directories storing raw metatranscriptome and metagenome fastq files.
 ```
  EukHeist/raw_dir/
  ├── metagenome
@@ -23,48 +32,54 @@ bash download-test-data.sh
 ```
 This is download raw reads to the metagenome and metatranscriptome directories.
 
-## 2. Provide 2 *sample data tables* (one for metaT and one for metaG) that list all sample IDs for input data. Using the test data, enable an R environment and run the provided R script in the metagenome and metatranscriptome directories (provided).
-The final product will look like this:
-```
-SAMPLEID        FULLPATH        R1      R2      OMIC    ASSEMBLY_GROUPING
-ERR1711907      /vortexfs1/omics/alexander/shu/EukHeist/raw_dir/metatranscriptome/ERR1711907    ERR1711907_1.fastq.gz   ERR1711907_2.fastq.gz   METATRANSCRIPTOME       
-ERR1719262      /vortexfs1/omics/alexander/shu/EukHeist/raw_dir/metatranscriptome/ERR1719262    ERR1719262_1.fastq.gz   ERR1719262_2.fastq.gz   METATRANSCRIPTOME       
-ERR1740135      /vortexfs1/omics/alexander/shu/EukHeist/raw_dir/metatranscriptome/ERR1740135    ERR1740135_1.fastq.gz   ERR1740135_2.fastq.gz   METATRANSCRIPTOME  
-```
-To automatically generate this using the contents in ```metagenome``` and ```metatranscriptome```, see Rscripts that find the directory's fastq files and create the above table.
-```
-cd ./EukHeist/raw_dir/metatranscriptome/
+## 2.2 Create _sample list_ files for metagenome and metatranscriptome data
 
-# Enable an R environment to run R
-conda activate r_3.5.1
-Rscript generate-metaT-samplelist.r
+The final sample list files should look like this, with complete paths under "FULLPATH" and the assembly grouping lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines.
 
-# Output sample list: 'samplelist-metaT.txt'
-## Repeat for metagenome in /EukHeist/raw_dir/metagenome/
-### Output from metagenome script is 'samplelist-metaG.txt'
+**Example sample list files**
 ```
-*The last column* of the sample list table _ASSEMBLY_GROUP_ lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines. See final versions of this in ```EukHeist/input/samplelist-meta*-wgroups.txt```
+SAMPLEID        SAMPLENAME      OMIC    FULLPATH        R1      R2      ASSEMBLY_GROUPING
+ERR1163068      CTD1200_DNA     METAGENOMIC     /../../../ERR1163068 ERR1163068_1.fastq.gz   ERR1163068_2.fastq.gz   CTD1200_DNA
+ERR1163069      CTD1200_DNA     METAGENOMIC     /../../../ERR1163069 ERR1163069_1.fastq.gz   ERR1163069_2.fastq.gz   CTD1200_DNA
+ERR1163070      CTD1200_DNA     METAGENOMIC     /../../../ERR1163070 ERR1163070_1.fastq.gz   ERR1163070_2.fastq.gz   CTD1200_DNA
+``
 
-## 3. Generate an *Assembly group table* which lists a unique name for each group of samples you wish to assemble together. Based on the provided example data set and data table(```NAME```), we've included scripts you can modify to generate your assembly group table. You can also use the provided script to generate this file for you, based on the _ASSEMBLY_GROUP_ column from the ```samplelist-metaG-wgroups.txt``` and ```samplelist-metaT-wgroups.txt``` files.
+See example files "input-samplelist-example-metagenomic.txt". These should be _.txt_ files and separated with a tab.
+
+## 
+
+
+## 2.3 Generate an *Assembly group* file
+
+The first column, 'ASSEMBLY_GROUPING' lists the unique names for each group specified from the sample list file. The second column lists the sample IDs (in this example, the accession numbers), that are associated with the ASSEMBLY_GROUPING. These sample IDs are collapsed with commas.
+
 ```
 ASSEMBLY_GROUPING       SAMPLE_LIST
 Group1  ERR1726828,ERR599214
 Group2  ERR868421
 ```
 
-To generate automatically, run Rscript ```/EukHeist/input/generate-assembly-group-tables.r```.
+
+Create sample list files that end in ```metatranscriptomic.txt``` and metagenomic.txt```, and run this R script to automatically generate the Assembly group files. 
+
+Run Rscript ```/../generate-assembly-group-tables.r```.
+
+
+## 3.0 Set up EukHeist
+
+Clone repo
 ```
-cd /EukHeist/input/
-# Ensure metaG and metaT files are present, named:
-## samplelist-metaG-wgroups.txt
-## samplelist-metaT-wgroups.txt
-
-Rscript generate-assembly-group-tables.r
-# Output file: assembly-list-metaG.txt and assembly-list-metaT.txt
 
 ```
 
-## 4. Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
+Create a conda environment to run the EukHeist pipeline:
+
+```conda env create --name EukHeist --file environment.yaml```
+
+This conda environment runs the snakemake pipeline manager. Snakemake is then dependent on the environments available in ```EukHeist/envs/``` or through snakemake wrappers to run modules within the pipeline.   
+
+
+Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
 As an example, my input fastq files are located somewhere else, while the assembly group table is located in the input directory in this repo. 
 ```
 inputDIR: /vortexfs1/omics/alexander/data/TARA	#Location and full path to raw sequences
