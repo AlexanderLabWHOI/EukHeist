@@ -2,7 +2,7 @@
 ## Snakemake-based workflow for the retrieval of Eukaryotic (and other) genomes from metagenomes
 
 
-# 1.0 Introduction
+## 1.0 Introduction
 Molecular and genomic approaches, particularly those applied to whole, mixed communities (e.g. metagenomics, metatranscriptomics), have shed light on the ecological roles, evolutionary histories, and physiological capabilities of these organisms. We developed a scalable and reproducible pipeline to facilitate the retrieval, taxonomic assignment, and annotation of eukaryotic metagenome assembled genomes (MAGs) from mixed community metagenomes. The below pipeline uses **EukHeist** to retrieve eukaryotic (and other) metagenome assembled genomes from the *Tara Oceans* global dataset.
 
 _General workflow_
@@ -16,40 +16,43 @@ _User workflow_
 * Run tests and confirm rules in pipeline you plan to use
 
 
-# 2.0 Setup
+## 2.0 Setup
 
-Need full path of raw metagenome and metatranscriptome sequences. 
+Locate and organize metagenomic and metatranscriptomic fastq files. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
 
-## 2.1 Structure input directories storing raw metatranscriptome and metagenome fastq files.
+
+### 2.1 Structure input fastq files in individual directories
+
+Example file structure:
 ```
  EukHeist/raw_dir/
  ├── metagenome
  └── metatranscriptome
 ```
-To use the test data, run:
-```
-bash download-test-data.sh
-```
-This is download raw reads to the metagenome and metatranscriptome directories.
 
-## 2.2 Create _sample list_ files for metagenome and metatranscriptome data
+To use the test data, run:
+```bash download-test-data.sh```
+
+This will download raw reads, for a test run, to the metagenome and metatranscriptome directories.
+
+### 2.2 Create _sample list_ files for metagenome and metatranscriptome data
 
 The final sample list files should look like this, with complete paths under "FULLPATH" and the assembly grouping lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines.
 
 **Example sample list files**
+
 ```
 SAMPLEID        SAMPLENAME      OMIC    FULLPATH        R1      R2      ASSEMBLY_GROUPING
 ERR1163068      CTD1200_DNA     METAGENOMIC     /../../../ERR1163068 ERR1163068_1.fastq.gz   ERR1163068_2.fastq.gz   CTD1200_DNA
 ERR1163069      CTD1200_DNA     METAGENOMIC     /../../../ERR1163069 ERR1163069_1.fastq.gz   ERR1163069_2.fastq.gz   CTD1200_DNA
 ERR1163070      CTD1200_DNA     METAGENOMIC     /../../../ERR1163070 ERR1163070_1.fastq.gz   ERR1163070_2.fastq.gz   CTD1200_DNA
-``
+```
 
-See example files "input-samplelist-example-metagenomic.txt". These should be _.txt_ files and separated with a tab.
-
-## 
+See example file "input-samplelist-example-metagenomic.txt". These should be _.txt_ files and separated with a tab.
 
 
-## 2.3 Generate an *Assembly group* file
+
+### 2.3 Generate an *Assembly group* file
 
 The first column, 'ASSEMBLY_GROUPING' lists the unique names for each group specified from the sample list file. The second column lists the sample IDs (in this example, the accession numbers), that are associated with the ASSEMBLY_GROUPING. These sample IDs are collapsed with commas.
 
@@ -65,21 +68,26 @@ Create sample list files that end in ```metatranscriptomic.txt``` and metagenomi
 Run Rscript ```/../generate-assembly-group-tables.r```.
 
 
+
 ## 3.0 Set up EukHeist
 
-Clone repo
+Start by cloning this repo.
+```
+git clone https://github.com/AlexanderLabWHOI/EukHeist.git
 ```
 
-```
 
-Create a conda environment to run the EukHeist pipeline:
+Then, create a conda environment to run the EukHeist pipeline:
 
 ```conda env create --name EukHeist --file environment.yaml```
 
 This conda environment runs the snakemake pipeline manager. Snakemake is then dependent on the environments available in ```EukHeist/envs/``` or through snakemake wrappers to run modules within the pipeline.   
 
 
+### 3.1
+
 Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
+
 As an example, my input fastq files are located somewhere else, while the assembly group table is located in the input directory in this repo. 
 ```
 inputDIR: /vortexfs1/omics/alexander/data/TARA	#Location and full path to raw sequences
@@ -90,18 +98,47 @@ metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt	## Update wit
 metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
 metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt	#Location of assembly file
 metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
-
 ```
 
-## 5. Create a conda environment to run the EukHeist pipeline:
+Explanation of ```config.yaml``` file:
+_need to figure out if the file structure can be changed upfront?_
+```
+metaG_accession: PRJEB4352 
+metaT_accession: PRJEB6609
 
-```conda env create --name EukHeist --file environment.yaml```
+metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt
+metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
 
-This conda environment runs the snakemake pipeline manager. Snakemake is then dependent on the environments available in ```EukHeist/envs/``` or through snakemake wrappers to run modules within the pipeline.   
+#metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt
+#metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
+
+inputDIR: /vortexfs1/omics/alexander/data/TARA
+outputDIR: /vortexfs1/omics/alexander/akrinos/output-data-TARA
+
+#outputDIR: /vortexfs1/omics/alexander/data/TARA/PRJEB4352-snakmake-output 
+
+scratch:  /vortexfs1/scratch/akrinos/tara
+adapters: input/adapters/illumina-adapters.fa
+metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt
+metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
+
+#metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
+#metaT_sample_list: input/SampleList_ForAssembly_metaT_python.txt 
+
+megahit_other: --continue --k-list 29,39,59,79,99,119 
+megahit_cpu: 80
+megahit_min_contig: 1000
+megahit_mem: .95
+restart-times: 0
+max-jobs-per-second: 1
+max-status-checks-per-second: 10
+local-cores: 1
+rerun-incomplete: true
+keep-going: true
+```
 
 
 Explanation of working directory:
-
 ```
 EukHeist
 ├── cluster.yaml         # Specifications to submit Snakemake jobs through SLURM on HPC
