@@ -77,11 +77,15 @@ git clone https://github.com/AlexanderLabWHOI/EukHeist.git
 ```
 
 
-Then, create a conda environment to run the EukHeist pipeline:
+Then, create a conda environment to run the EukHeist pipeline. We recommend using [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for this, use ```conda install mamba -n base -c conda-forge``` to install mamba to your base conda environment. 
 
-```conda env create --name EukHeist --file environment.yaml```
+```
+conda create -n EUKHeist -c conda-forge mamba #create EUKHeist environment
+conda activate EUKHeist #activate EUKHeist
+mamba install -c bioconda -c conda-forge snakemake python jinja2 networkx matplotlib graphviz #install items from bioconda and conda-forge needed to run pipeline
+```
+_Update above instructions later when versions of needed software is updated_
 
-This conda environment runs the snakemake pipeline manager. Snakemake is then dependent on the environments available in ```EukHeist/envs/``` or through snakemake wrappers to run modules within the pipeline.   
 
 
 ### 3.1
