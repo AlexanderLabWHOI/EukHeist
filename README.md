@@ -18,7 +18,7 @@ _User workflow_
 
 ## 2.0 Setup
 
-Locate and organize metagenomic and metatranscriptomic fastq files. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
+Locate and organize metagenomic and metatranscriptomic fastq files. Create a single directory for your metagenomic reads and a second directory for metatranscriptomic reads. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
 
 
 ### 2.1 Structure input fastq files in individual directories
@@ -43,9 +43,9 @@ The final sample list files should look like this, with complete paths under "FU
 
 ```
 SAMPLEID        SAMPLENAME      OMIC    FULLPATH        R1      R2      ASSEMBLY_GROUPING
-ERR1163068      CTD1200_DNA     METAGENOMIC     /../../../ERR1163068 ERR1163068_1.fastq.gz   ERR1163068_2.fastq.gz   CTD1200_DNA
-ERR1163069      CTD1200_DNA     METAGENOMIC     /../../../ERR1163069 ERR1163069_1.fastq.gz   ERR1163069_2.fastq.gz   CTD1200_DNA
-ERR1163070      CTD1200_DNA     METAGENOMIC     /../../../ERR1163070 ERR1163070_1.fastq.gz   ERR1163070_2.fastq.gz   CTD1200_DNA
+ERR1163068      CTD1200_DNA     METAGENOMIC     /../../../metagenome ERR1163068_1.fastq.gz   ERR1163068_2.fastq.gz   CTD1200_DNA
+ERR1163069      CTD1200_DNA     METAGENOMIC     /../../../metagenome ERR1163069_1.fastq.gz   ERR1163069_2.fastq.gz   CTD1200_DNA
+ERR1163070      CTD1200_DNA     METAGENOMIC     /../../../metagenome ERR1163070_1.fastq.gz   ERR1163070_2.fastq.gz   CTD1200_DNA
 ```
 
 See example file "input-samplelist-example-metagenomic.txt". These should be _.txt_ files and separated with a tab.
@@ -88,38 +88,22 @@ This conda environment runs the snakemake pipeline manager. Snakemake is then de
 
 Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
 
-As an example, my input fastq files are located somewhere else, while the assembly group table is located in the input directory in this repo. 
-```
-inputDIR: /vortexfs1/omics/alexander/data/TARA	#Location and full path to raw sequences
-
-scratch: 	#Location and full path to output scratch directory
-
-metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt	## Update with new name for these files?
-metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
-metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt	#Location of assembly file
-metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
-```
-
 Explanation of ```config.yaml``` file:
 _need to figure out if the file structure can be changed upfront?_
 ```
-metaG_accession: PRJEB4352 
-metaT_accession: PRJEB6609
+metaG_accession: PRJEB4352 # Name of subdirectory with all metagenomic fastq
+metaT_accession: PRJEB6609 # Name of subdirectory with all metatranscriptomic fastq
 
-metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt
-metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
+metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt # full path for location of input sample list for metagenomic reads
+metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt # full path for location of input sample list for metatranscriptomic reads
 
-#metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt
-#metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
+inputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent # Prefix to the subdirectory of all metagenomic and metatranscriptomic reads
+outputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent/output-data # Directory for output data
 
-inputDIR: /vortexfs1/omics/alexander/data/TARA
-outputDIR: /vortexfs1/omics/alexander/akrinos/output-data-TARA
+scratch:  /vortexfs1/scratch/sarahhu/eukheist-vent # Actual output directory where we can store working files, in this case scratch
+adapters: input/adapters/illumina-adapters.fa # provided list of illumina adapters
 
-#outputDIR: /vortexfs1/omics/alexander/data/TARA/PRJEB4352-snakmake-output 
-
-scratch:  /vortexfs1/scratch/akrinos/tara
-adapters: input/adapters/illumina-adapters.fa
-metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt
+metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt # Location of assembly list, following Input DIR prefix
 metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
 
 #metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
@@ -137,6 +121,7 @@ rerun-incomplete: true
 keep-going: true
 ```
 
+### 3.2 Review working directory
 
 Explanation of working directory:
 ```
@@ -166,22 +151,32 @@ EukHeist
 └── submit_script	 # Submit scripts to enable running on HPC / with slurm.
 ```
 
-## 6. Data
-Download Tara Expedition metagenomic and metatranscriptomic data. [Use this pipeline](https://github.com/AlexanderLabWHOI/tara-download-snakemake/blob/master/Snakefile)
-**This needs to get sorted**  
+## 4.0 Execute EukHeist dry run / test
 
-Also instructions for test data?
+EukHeist relies on the workflow manager called 'Snakemake'. Snakemake will create a script of all required commands and make sure needed files are correct and that all rules can be executed. We can use the "dry run" approach to perform an initial test of our EukHeist run.
 
 
-## 7. Other considerations - program specifications
+### 4.1 Set up with your HPC
+
+Navigate to the EukHeist directory and modify the ```cluster.yaml``` file to for specific HPC access. Under ```__default__``` you can specify your account information, threads, time, and node that will be used for each slurm run. Then below, each rule has a set of thread, memory, and time parameters that can be modified for your individual dataset. For instance, the **trimmomatic*** step looks like this:
+```
+trimmomatic:
+    queue: compute
+    threads: 6
+    mem: 24
+    time: 720
+```
+
+### 4.2 View Snakemake commands
+
+If running with your HPC and slurm, navigate to ```EukHeist/submit_script/```. There are three bash scripts that can be used to run dry tests of your EukHeist workflow and to actually submit the whole thing to slurm.
 
 
-## 8. Test run snakemake
+In order to execute a dry run, enable the EukHeist conda environment you previously created, then submit bash script to run a dry run.
 
 ```
-snakemake -np --use-conda
+conda activate EukHeist # Prefix to each line should now read "(EukHeist)"
 
-# Or if running with HPC
 bash submit_script/dry_submit_snakemake.sh
 ```
 
@@ -193,6 +188,15 @@ snakemake --use-conda
 # Or if running with HPC 
 bash submit_script/submit_snakemake.sh
 ```
+
+
+
+## 6.0 Reproduce results from EukHeist TARA ocean analysis
+
+**This needs to get sorted**  
+
+
+
 
 
 ### Troubleshooting snakemake
