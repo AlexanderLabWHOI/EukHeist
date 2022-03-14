@@ -56,7 +56,9 @@ rule fastqc_trimmed:
         html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}.trimmed_fastqc.html"), 
         zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}.trimmed_fastqc.zip")
     params: 
-        fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}")
+        fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}"),
+        outname = (lambda filename: os.path.join(OUTPUTDIR, "qc", "fastqc", filename.study,
+                    splitfilenames(get_filenames(filename.sample, filename.study, filename.num))))
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.trimmed.log")
     shell:
