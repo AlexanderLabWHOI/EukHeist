@@ -170,39 +170,20 @@ trimmomatic:
     time: 720
 ```
 
-### 4.2 View Snakemake commands
+### 4.3 Run Snakemake test run
 
 If running with your HPC and slurm, navigate to ```EukHeist/submit_script/```. There are three bash scripts that can be used to run dry tests of your EukHeist workflow and to actually submit the whole thing to slurm.
 
-
-In order to execute a dry run, enable the EukHeist conda environment you previously created, then submit bash script to run a dry run.
+In order to execute a dry run, enable the EukHeist conda environment you previously created, then use the ```-s``` and ```-np``` flags with snakemake to test the workflow.
 
 ```
 conda activate EukHeist # Prefix to each line should now read "(EukHeist)"
 
-bash submit_script/dry_submit_snakemake.sh
+snakemake -s EUKHeist -np --use-conda
 ```
 
-## 9. Execute full snakemake pipeline
+### 4.4 Running snakeemake tests & troubleshooting
 
-```
-snakemake --use-conda
-
-# Or if running with HPC 
-bash submit_script/submit_snakemake.sh
-```
-
-
-
-## 6.0 Reproduce results from EukHeist TARA ocean analysis
-
-**This needs to get sorted**  
-
-
-
-
-
-### Troubleshooting snakemake
 When throwing an error, snakemake will list log files. Each time snakemake is executed, a log file is created in ```CURRENT_SNAKEMAKE_DIR/.snakemake/log/```. These are dated and provide the printed output. Some common errors and steps to diagnose.   
 
 *Compatibility with snakemake and conda* Note the version of snakemake and anaconda you are using. Upon conda's switch from _source activate_ to _conda activate_, snakemake was not calling on the conda environments properly. Errors associted with these were ```returned non-zero exit status 127``` and an error about *line 56* in *thread.py* like this: ```LOCATION_OF_YOUR_CONDA_ENVS/.conda/envs/snake-18S/lib/python3.6/concurrent/futures/thread.py", line 56, in run```
@@ -216,9 +197,24 @@ To look for additional code error that may result in Syntax errors, try adding t
 * ```--printshellcmds```
 * ```--debug```
 
+
+## 5.0 Execute full snakemake pipeline
+
+```
+snakemake -s EUKHeist --use-conda
+```
+
+
+## 6.0 Reproduce results from EukHeist TARA ocean analysis
+
+**This needs to get sorted**  
+
+
+
 ## TO DO
 * update so that input files can be R1_001.fastq.gz or 1.fastq.gz - or else? 
-* Nested config.yaml file type?
-* User needs to supply a SAMPLE LIST and an ASSEMBLY list - rather than the assessions that assume metaG vs metaT
-* Need to include a check at the beginning that (a) ensures all fastq files in SAMPLE LIST are present and not duplicated file names, (b) all samples listed in the ASSMEBLY GROUPS are also present in the SAMPLE LIST and not included more than once.
-* snakemake checkpoints?
+* Add example sample list and assembly list
+* (a) ensures all fastq files in SAMPLE LIST are present and not duplicated file names, (b) all samples listed in the ASSMEBLY GROUPS are also present in the SAMPLE LIST and not included more than once.
+* additional details on how the snakemake EUKHeist pipeline is set up (rules directory, etc).
+* Documentation specific for Tara ocean?
+
