@@ -16,7 +16,7 @@ _User workflow_
 * Run tests and confirm rules in pipeline you plan to use
 
 
-## 2.0 Setup
+## 2.0 Set up
 
 Locate and organize metagenomic and metatranscriptomic fastq files. Create a single directory for your metagenomic reads and a second directory for metatranscriptomic reads. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
 
@@ -65,7 +65,7 @@ Group2  ERR868421
 
 Create sample list files that end in ```metatranscriptomic.txt``` and metagenomic.txt```, and run this R script to automatically generate the Assembly group files. 
 
-Run Rscript ```/../generate-assembly-group-tables.r```.
+Run Rscript ```/../generate-assembly-group-tables.r```; this will input the sample list file and generate the assembly grouping file, as long as the sample names designate the assembly groups.
 
 
 
@@ -75,7 +75,6 @@ Start by cloning this repo.
 ```
 git clone https://github.com/AlexanderLabWHOI/EukHeist.git
 ```
-
 
 Then, create a conda environment to run the EukHeist pipeline. We recommend using [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for this, use ```conda install mamba -n base -c conda-forge``` to install mamba to your base conda environment. 
 
@@ -90,51 +89,51 @@ _Update above instructions later when versions of needed software is updated_
 
 ### 3.1
 
-Modify ```config.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
+Modify ```hierarchy_cluster.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
 
-Explanation of ```config.yaml``` file:
-_need to figure out if the file structure can be changed upfront?_
+Explanation of ```hierarchy_cluster.yaml``` file:
+
 ```
-metaG_accession: PRJEB4352 # Name of subdirectory with all metagenomic fastq
-metaT_accession: PRJEB6609 # Name of subdirectory with all metatranscriptomic fastq
+directories:
+    input: test-data # Input path for where metagenomic and metatranscriptomic reads are
+    output: /vortexfs1/omics/alexander/akrinos/EUKHeist_test # Set a location as your output directory
+    scratch:  /vortexfs1/scratch/akrinos/EUKHeist_scratch # Full path for scratch directory
 
-metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt # full path for location of input sample list for metagenomic reads
-metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt # full path for location of input sample list for metatranscriptomic reads
+metaG:
+    create_sample_table: True
+    sample_data_table: test-data/samplelist-metaG-wgroups.txt  # Location of metagenomic sample list
+    assembly_group_table: test-data/assembly-list-metaG.txt  # Location of metagenomic assembly list
+    folder_name: metaG # Directory name (within "input") where metagenomic reads are located
+    
+metaT:
+    create_sample_table: True
+    sample_data_table: test-data/samplelist-metaT-wgroups.txt
+    assembly_group_table: test-data/assembly-list-metaT.txt 
+    folder_name: metaT #PRJEB6609
 
-inputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent # Prefix to the subdirectory of all metagenomic and metatranscriptomic reads
-outputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent/output-data # Directory for output data
+adapters: input/adapters/illumina-adapters.fa
+mode: metaG
 
-scratch:  /vortexfs1/scratch/sarahhu/eukheist-vent # Actual output directory where we can store working files, in this case scratch
-adapters: input/adapters/illumina-adapters.fa # provided list of illumina adapters
+megahit:
+    cpu: 80
+    min_contig: 1000
+    mem: .95
+    other: --continue --k-list 29,39,59,79,99,119
 
-metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt # Location of assembly list, following Input DIR prefix
-metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
-
-#metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
-#metaT_sample_list: input/SampleList_ForAssembly_metaT_python.txt 
-
-megahit_other: --continue --k-list 29,39,59,79,99,119 
-megahit_cpu: 80
-megahit_min_contig: 1000
-megahit_mem: .95
-restart-times: 0
-max-jobs-per-second: 1
-max-status-checks-per-second: 10
-local-cores: 1
-rerun-incomplete: true
-keep-going: true
 ```
 
 ### 3.2 Review working directory
 
+_Need to clean this up when we have a final working version_
+
 Explanation of working directory:
+
 ```
 EukHeist
 ├── cluster.yaml         # Specifications to submit Snakemake jobs through SLURM on HPC
 ├── config-test.yaml     # Test configuration file
-├── config.yaml          # Configuration file, modified above. Edit to customize Snakemake pipeline
+├── hierarchy_cluster.yaml          # Configuration file, modified above. Edit to customize Snakemake pipeline
 ├── environmentv0.2.yaml # Starting environment to load Snakemake
-├── environment.yaml     # Old environment file - to delete
 ├── envs		 # All conda environments required for snakemake rules
 │   
 ├── input		 # Required input files for snakefile to run and scripts
