@@ -100,13 +100,13 @@ directories:
     scratch:  /vortexfs1/scratch/akrinos/EUKHeist_scratch # Full path for scratch directory
 
 metaG:
-    create_sample_table: True
+    create_sample_table: False
     sample_data_table: test-data/samplelist-metaG-wgroups.txt  # Location of metagenomic sample list
     assembly_group_table: test-data/assembly-list-metaG.txt  # Location of metagenomic assembly list
     folder_name: metaG # Directory name (within "input") where metagenomic reads are located
     
 metaT:
-    create_sample_table: True
+    create_sample_table: False
     sample_data_table: test-data/samplelist-metaT-wgroups.txt
     assembly_group_table: test-data/assembly-list-metaT.txt 
     folder_name: metaT #PRJEB6609
@@ -121,6 +121,10 @@ megahit:
     other: --continue --k-list 29,39,59,79,99,119
 
 ```
+
+Co-assembly will be dictated by user providing a column in the sample list input file and toggling the ```create_sample_table:``` to True or False.
+In each...?
+
 
 ### 3.2 Review working directory
 
