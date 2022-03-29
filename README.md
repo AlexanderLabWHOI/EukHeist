@@ -134,28 +134,21 @@ Explanation of working directory:
 
 ```
 EukHeist
-├── cluster.yaml         # Specifications to submit Snakemake jobs through SLURM on HPC
-├── config-test.yaml     # Test configuration file
-├── hierarchy_cluster.yaml          # Configuration file, modified above. Edit to customize Snakemake pipeline
-├── environmentv0.2.yaml # Starting environment to load Snakemake
-├── envs		 # All conda environments required for snakemake rules
-│   
-├── input		 # Required input files for snakefile to run and scripts
-│   ├── adapters
-│   ├── assembly-list-metaG.txt
-│   ├── assembly-list-metaT.txt
-│   ├── generate-assembly-group-tables.r
-│   ├── samplelist-metaG-wgroups.txt
-│   └── samplelist-metaT-wgroups.txt
-├── raw_dir			
-│   ├── metagenome
-│   └── metatranscriptome
+├── cluster.yaml # File that is modified by user to run snakemake on HPC
+├── config.yaml #RM
+├── environment.yaml # Environment to create snakemake conda env
+├── envs # Directory with all environment files for each snakemake rule
+├── EUKHeist # Snakemake script for EukHeist
+├── hierarchy_cluster.yaml # User-modified file that configures EukHeist to run your samples
+├── input # Necessary input files to run EukHeist
+├── LICENSE
 ├── README.md
-├── rules
-│   └── normalization.smk
-├── Snakefile		 # Complete snakemake file to run full pipeline
-├── start-up
-└── submit_script	 # Submit scripts to enable running on HPC / with slurm.
+├── rules # each step of the snakemake pipeline is a 'rule'
+├── scripts # Directory with additional scripts used in EukHeist
+├── Snakefile #RM
+├── start-up #RM?
+└── submit_script #RM?
+
 ```
 
 ## 4.0 Execute EukHeist dry run / test
@@ -186,16 +179,20 @@ conda activate EukHeist # Prefix to each line should now read "(EukHeist)"
 snakemake -s EUKHeist -np --use-conda
 ```
 
-### 4.4 Running snakeemake tests & troubleshooting
+### 4.4 snakemake troubleshooting
 
-When throwing an error, snakemake will list log files. Each time snakemake is executed, a log file is created in ```CURRENT_SNAKEMAKE_DIR/.snakemake/log/```. These are dated and provide the printed output. Some common errors and steps to diagnose.   
+* When throwing an error, snakemake will list log files. Each time snakemake is executed, a log file is created in ```CURRENT_SNAKEMAKE_DIR/.snakemake/log/```. These are dated and provide the printed output. Some common errors and steps to diagnose.   
 
-*Compatibility with snakemake and conda* Note the version of snakemake and anaconda you are using. Upon conda's switch from _source activate_ to _conda activate_, snakemake was not calling on the conda environments properly. Errors associted with these were ```returned non-zero exit status 127``` and an error about *line 56* in *thread.py* like this: ```LOCATION_OF_YOUR_CONDA_ENVS/.conda/envs/snake-18S/lib/python3.6/concurrent/futures/thread.py", line 56, in run```
+* *Compatibility with snakemake and conda* Note the version of snakemake and anaconda you are using. Upon conda's switch from _source activate_ to _conda activate_, snakemake was not calling on the conda environments properly. Errors associted with these were ```returned non-zero exit status 127``` and an error about *line 56* in *thread.py* like this: ```LOCATION_OF_YOUR_CONDA_ENVS/.conda/envs/snake-18S/lib/python3.6/concurrent/futures/thread.py", line 56, in run```
 Update your version of snakemake. Versions listed above are compatible. This error will also be generated when there is an incomptaible conda environment called, such as an outdated [snakemake wrapper](https://snakemake-wrappers.readthedocs.io/en/stable/). Try updating that - but ensure you have first updated the snakemake version.   
 
-Check all log files, found in ```./snakemake/log``` and the log files generated as output. Most helpful are the output files from each slurm job, ```slurm-XXX.out```. Look at the most recent slurm out files after a job fails to find more informative errors.    
+* Check all log files, found in ```./snakemake/log``` and the log files generated as output. Most helpful are the output files from each slurm job, ```slurm-XXX.out```. Look at the most recent slurm out files after a job fails to find more informative errors.    
 
-See ```snakemake -h``` for additional commands to clean up working snakemake environment, list steps, or restarting attempts, etc. When running, snakemake "locks" the working directory, so only one snakemake command can be run at a time. If you have to cancel, make sure to run ```snakemake --unlock``` to clear it. See other flags to clean up your working environment after updated conda, snakemake, or other environment versions (```--cleanup-shadow```, ```--cleanup-conda```).
+* _Error in rule_ xxx: Typically, snakemake will also tell you which rule an error occurred. In this example, an error read ```Error in rule fastqc:``` and pointed to the location of the fastqc log file itself (for EukHeist this will be in output data). We we inspected the fastqc log file, it was discovered that the .yaml file for fastqc had an issue, so snakemake was not able to create this environment or find 'fastqc' to run.
+
+* _KeyError_ : In the case of a Key Error, this indicates that some samples are not named correctly. This should become apparent during the test runs of snakemake where EukHeist will go through all the code it plans to run and makes sure that all files will exist and are named correctly. In the case of EukHeist, ensure your assembly group name and sample list files are free of typos. Typically the key error will provide an example of where snakemake found the error, so this can be used to search for a potential typo.
+
+* See ```snakemake -h``` for additional commands to clean up working snakemake environment, list steps, or restarting attempts, etc. When running, snakemake "locks" the working directory, so only one snakemake command can be run at a time. If you have to cancel, make sure to run ```snakemake --unlock``` to clear it. See other flags to clean up your working environment after updated conda, snakemake, or other environment versions (```--cleanup-shadow```, ```--cleanup-conda```).
 To look for additional code error that may result in Syntax errors, try adding this to snakemake execution:
 * ```--summary``` or ```--detailed-summary```
 * ```--printshellcmds```
@@ -204,9 +201,12 @@ To look for additional code error that may result in Syntax errors, try adding t
 
 ## 5.0 Execute full snakemake pipeline
 
+Once you get a green output from snakemake with the dry run, it means that the EukHeist pipeline is ready to run.
+
 ```
-snakemake -s EUKHeist --use-conda
+snakemake -s EUKHeist --use-conda --cores 1
 ```
+
 
 
 ## 6.0 Reproduce results from EukHeist TARA ocean analysis
@@ -216,9 +216,10 @@ snakemake -s EUKHeist --use-conda
 
 
 ## TO DO
-* update so that input files can be R1_001.fastq.gz or 1.fastq.gz - or else? 
+* update so that input files can be R1_001.fastq.gz or 1.fastq.gz - or else?
 * Add example sample list and assembly list
 * (a) ensures all fastq files in SAMPLE LIST are present and not duplicated file names, (b) all samples listed in the ASSMEBLY GROUPS are also present in the SAMPLE LIST and not included more than once.
 * additional details on how the snakemake EUKHeist pipeline is set up (rules directory, etc).
 * Documentation specific for Tara ocean?
+* Check sarah's modified environments and fastqc rule for some revisions to EUKHeist pipeline.
 
