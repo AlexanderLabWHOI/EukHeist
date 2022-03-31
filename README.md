@@ -198,6 +198,17 @@ To look for additional code error that may result in Syntax errors, try adding t
 * ```--printshellcmds```
 * ```--debug```
 
+* During the trimmomatic step, if you run into an error that looks like this:
+```
+Exception in thread "main" java.io.EOFException: Unexpected end of ZLIB input stream
+        at java.base/java.util.zip.InflaterInputStream.fill(InflaterInputStream.java:245)
+        at java.base/java.util.zip.InflaterInputStream.read(InflaterInputStream.java:159)
+        at java.base/java.util.zip.GZIPInputStream.read(GZIPInputStream.java:118)
+        at org.usadellab.trimmomatic.util.ConcatGZIPInputStream.read(ConcatGZIPInputStream.java:73)
+
+```
+It indicates that there is something wrong with your original fastq file and trimmomatic detected it. To test your raw fastq files, use the command ```gunzip -t <fastq-file-name> && echo "VALID"```, the output will print "VALID" if the fastq file is formatted and zipped properly. It there is an issue, you may need to re-download the raw sequence file.
+
 
 ## 5.0 Execute full snakemake pipeline
 
