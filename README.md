@@ -179,7 +179,43 @@ conda activate EukHeist # Prefix to each line should now read "(EukHeist)"
 snakemake -s EUKHeist -np --use-conda
 ```
 
-### 4.4 snakemake troubleshooting
+### 4.4 Execute full snakemake pipeline 
+
+Once you get a green output from snakemake with the dry run, it means that the EukHeist pipeline is ready to run. Run the bash script in the ```submit_script``` directory to send all jobs to slurm. This will enable the parameters you specified in the cluster.yaml file.
+
+```
+bash submit_script/submit_snakemake.sh
+
+## If not using HPC
+# snakemake -s EUKHeist --use-conda --cores <number of available cores>
+```
+
+
+
+## 5.0 EukHeist output
+
+Within the ```output-data``` directory, final file structure should look like this.
+
+```
+.
+├── eukrep       # sorted prok vs euk contigs
+├── logs
+├── megahit       # co-assembled contigs
+├── metabat2      # bwa-derived abundances of prok contigs
+├── metabat2_euk  # bwa-derived abundances of euk contigs
+├── prodigal
+└── qc
+
+# From scratch
+.
+├── bwa_index
+├── mapping
+├── sourmash
+└── trimmed
+```
+
+
+### 6.0 snakemake troubleshooting
 
 * When throwing an error, snakemake will list log files. Each time snakemake is executed, a log file is created in ```CURRENT_SNAKEMAKE_DIR/.snakemake/log/```. These are dated and provide the printed output. Some common errors and steps to diagnose.   
 
@@ -210,19 +246,7 @@ Exception in thread "main" java.io.EOFException: Unexpected end of ZLIB input st
 It indicates that there is something wrong with your original fastq file and trimmomatic detected it. To test your raw fastq files, use the command ```gunzip -t <fastq-file-name> && echo "VALID"```, the output will print "VALID" if the fastq file is formatted and zipped properly. It there is an issue, you may need to re-download the raw sequence file.
 
 
-## 5.0 Execute full snakemake pipeline
 
-Once you get a green output from snakemake with the dry run, it means that the EukHeist pipeline is ready to run.
-
-```
-snakemake -s EUKHeist --use-conda --cores 1
-```
-
-
-
-## 6.0 Reproduce results from EukHeist TARA ocean analysis
-
-**This needs to get sorted**  
 
 
 
