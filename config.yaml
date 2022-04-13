@@ -1,21 +1,33 @@
-metaG_accession: PRJEB4352
-metaT_accession: PRJEB6609
+metaG_accession: metaG_vent_raw
+metaT_accession: metaT_vent_raw
 
-metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt
-metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
+metaG_ena_table: /vortexfs1/omics/alexander/shu/eukheist-vent/vent-euk-metagenomic.txt
+metaT_ena_table:/vortexfs1/omics/alexander/shu/eukheist-vent/vent-euk-metatranscriptomic.txt
 
+#metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt
+#metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
 #metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt
 #metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
 
-inputDIR: /vortexfs1/omics/alexander/data/TARA
-outputDIR: /vortexfs1/omics/alexander/akrinos/output-data-TARA
+inputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent
+outputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent/output-data
 
+#outputDIR: /vortexfs1/omics/alexander/akrinos/output-data-TARA
 #outputDIR: /vortexfs1/omics/alexander/data/TARA/PRJEB4352-snakmake-output 
 
-scratch:  /vortexfs1/scratch/akrinos/tara
+scratch:  /vortexfs1/scratch/sarahhu/vent-eukheist
 adapters: input/adapters/illumina-adapters.fa
-metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt
-metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
+
+# Within 'inputDIR', path to sample list, change name?
+metaG_samplelist: assembly-list-metaG.txt
+metaT_samplelist: assembly-list-metaT.txt
+
+# Or do I use full path?
+#metaG_samplelist: /vortexfs1/omics/alexander/shu/eukheist-vent/assembly-list-metaG.txt
+#metaT_samplelist: /vortexfs1/omics/alexander/shu/eukheist-vent/assembly-list-metaT.txt
+
+#metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt
+#metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
 
 #metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
 #metaT_sample_list: input/SampleList_ForAssembly_metaT_python.txt 

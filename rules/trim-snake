@@ -45,6 +45,7 @@ rule trimmomatic:
     params:
         trimmer = ["ILLUMINACLIP:{}:2:30:7".format(ADAPTERS), "LEADING:2", "TRAILING:2", "SLIDINGWINDOW:4:2", "MINLEN:50"],
         extra = ""
+    conda: "../envs/trim-env.yaml"
     shell:
         """
         trimmomatic PE {input.r1} {input.r2} {output.r1} {output.r1_unpaired} {output.r2} {output.r2_unpaired} {params.trimmer} >> {log} 2>&1

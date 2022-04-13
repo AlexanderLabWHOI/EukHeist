@@ -1,6 +1,6 @@
 __default__:
     system: 'slurm' #check if system is defined below
-    account: halexander #requred
+    account: sarahhu #requred
     time: 120 # minutes
     mem: 10 # GB
     threads: 8

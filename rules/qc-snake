@@ -41,12 +41,14 @@ rule fastqc:
                     splitfilenames(get_filenames(filename.sample, filename.study, filename.num)))) 
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.log")
+    conda: 
+        os.path.join("..", "envs", "fastqc-env.yaml")
     shell:
         """
         mkdir -p {params.fastqdir}
         fastqc {input} -o {params.fastqdir} >> {log} 2>&1
-        mv {params.outname}_fastqc.html {output.html}
-        mv {params.outname}_fastqc.zip {output.zip}
+        (mv {params.outname}_fastqc.html {output.html} 2> /dev/null) || true
+        (mv {params.outname}_fastqc.zip {output.zip} 2> /dev/null) || true
         """
 
 rule fastqc_trimmed:
@@ -61,22 +63,60 @@ rule fastqc_trimmed:
                     splitfilenames(get_filenames(filename.sample, filename.study, filename.num))))
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.trimmed.log")
+    conda: os.path.join("..", "envs", "fastqc-env.yaml")
     shell:
         """
         mkdir -p {params.fastqdir}
         fastqc {input} -o {params.fastqdir} >> {log} 2>&1
-        mv {params.outname}_fastqc.html {output.html}
-        mv {params.outname}_fastqc.zip {output.zip}
+        (mv {params.outname}_fastqc.html {output.html} 2> /dev/null) || true
+        (mv {params.outname}_fastqc.zip {output.zip} 2> /dev/null) || true
         """
 
-rule multiqc:
+rule multiqc_metaG:
     input:
         rawG = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
                                    "{sample}_{num}_fastqc.zip"), base = OUTPUTDIR,\
                       study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
         trimmedG = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
                                        "{sample}_{num}.trimmed_fastqc.zip"), base = OUTPUTDIR, \
-                          study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
+                          study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2])
+    output:
+        html_rawG = os.path.join(OUTPUTDIR, "qc", "rawG_multiqc.html"), 
+        #stats_rawG = os.path.join(OUTPUTDIR, "qc", "rawG_multiqc_general_stats.txt"),
+        html_trimmedG = os.path.join(OUTPUTDIR, "qc", "trimmedG_multiqc.html"), 
+        #stats_trimmedG = os.path.join(OUTPUTDIR, "qc", "trimmedG_multiqc_general_stats.txt")
+    conda: 
+        os.path.join("..", "envs", "multiqc-env.yaml")
+    params:
+        first_name="multiqc_metaG",
+        raw_name="multiqc_metaG_raw",
+        outdir = os.path.join(OUTPUTDIR, "qc")
+    shell: 
+        """
+        multiqc -f --export -n {params.first_name}.html -o {params.first_name} {input.trimmedG}
+        cat {params.first_name}/{params.first_name}*.html > {output.html_trimmedG}
+        mv {params.first_name}/{params.first_name}_data {params.outdir}/{params.first_name}_data
+        #cat {params.first_name}/{params.first_name}_data/multiqc_general_stats.txt > {output.stats_trimmedG} 
+        rm -rf {params.first_name}/
+        
+        multiqc -f --export -n {params.raw_name}.html -o {params.raw_name} {input.rawG}
+        cat {params.raw_name}/{params.raw_name}*.html > {output.html_rawG}
+        mv {params.raw_name}/{params.raw_name}_data {params.outdir}/{params.raw_name}_data
+        #cat {params.raw_name}/{params.raw_name}_data/multiqc_general_stats.txt > {output.stats_trimmedG} 
+        rm -rf {params.raw_name}/
+        #multiqc -n multiqc.html {input.rawG}
+        #mv multiqc.html {output.html_rawG}
+        #mv multiqc_data/multiqc_general_stats.txt {output.stats_rawG} 
+        #rm -rf multiqc_data
+
+        #multiqc -n multiqc.html {input.trimmedG}
+        #mv multiqc.html {output.html_trimmedG}
+        #mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedG} 
+        #rm -rf multiqc_data
+        """ 
+
+rule multiqc_metaT:
+    input:
         rawT = expand(os.path.join("{base}", "qc", "fastqc", "{study}",\
                                    "{sample}_{num}_fastqc.zip"), base = OUTPUTDIR,\
                       study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2]), 
@@ -84,35 +124,27 @@ rule multiqc:
                                        "{sample}_{num}.trimmed_fastqc.zip"), base = OUTPUTDIR,\
                           study = METAT_FOLDER, sample = metaT_run_accession, num = [1,2])
     output:
-        html_rawG = os.path.join(OUTPUTDIR, "qc", "rawG_multiqc.html"), 
-        stats_rawG = os.path.join(OUTPUTDIR, "qc", "rawG_multiqc_general_stats.txt"),
-        html_trimmedG = os.path.join(OUTPUTDIR, "qc", "trimmedG_multiqc.html"), 
-        stats_trimmedG = os.path.join(OUTPUTDIR, "qc", "trimmedG_multiqc_general_stats.txt"),
         html_rawT = os.path.join(OUTPUTDIR, "qc", "rawT_multiqc.html"), 
-        stats_rawT = os.path.join(OUTPUTDIR, "qc", "rawT_multiqc_general_stats.txt"),
+        #stats_rawT = os.path.join(OUTPUTDIR, "qc", "rawT_multiqc_general_stats.txt"),
         html_trimmedT = os.path.join(OUTPUTDIR, "qc", "trimmedT_multiqc.html"), 
-        stats_trimmedT = os.path.join(OUTPUTDIR, "qc", "trimmedT_multiqc_general_stats.txt")
+        #stats_trimmedT = os.path.join(OUTPUTDIR, "qc", "trimmedT_multiqc_general_stats.txt")
     conda: 
         os.path.join("..", "envs", "multiqc-env.yaml")
+    params:
+        first_name="multiqc_metaT",
+        raw_name="multiqc_metaT_raw",
+        outdir = os.path.join(OUTPUTDIR, "qc")
     shell: 
         """
-        multiqc -n multiqc.html {input.rawG}
-        mv multiqc.html {output.html_rawG}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_rawG} 
-        rm -rf multiqc_data
-
-        multiqc -n multiqc.html {input.trimmedG}
-        mv multiqc.html {output.html_trimmedG}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedG} 
-        rm -rf multiqc_data
+        multiqc -n {params.first_name}.html -o {params.first_name} {input.trimmedT}
+        cat {params.first_name}/{params.first_name}*.html > {output.html_trimmedT}
+        mv {params.first_name}/{params.first_name}_data {params.outdir}/{params.first_name}_data
+        #cat {params.first_name}/{params.first_name}_data/multiqc_general_stats.txt > {output.stats_trimmedT} 
+        rm -rf {params.first_name}/
         
-        multiqc -n multiqc.html {input.trimmedT}
-        mv multiqc.html {output.html_trimmedT}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedT} 
-        rm -rf multiqc_data
-        
-        multiqc -n multiqc.html {input.trimmedT}
-        mv multiqc.html {output.html_trimmedT}
-        mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedT} 
-        rm -rf multiqc_data
+        multiqc -n {params.raw_name}.html -o {params.raw_name} {input.rawT}
+        cat {params.raw_name}/{params.raw_name}*.html > {output.html_rawT}
+        mv {params.raw_name}/{params.raw_name}_data {params.outdir}/{params.raw_name}_data
+        #cat {params.raw_name}/{params.raw_name}_data/multiqc_general_stats.txt > {output.stats_trimmedT} 
+        rm -rf {params.raw_name}/
         """ 

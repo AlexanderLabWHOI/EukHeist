@@ -13,7 +13,7 @@ pd.options.display.max_colwidth = 100
 import setupworkspace
 from setupworkspace import *
 
-localrules: multiqc, copy_bwa_index 
+#localrules: multiqc, copy_bwa_index 
 include: "rules/bwa-snake"
 include: "rules/eukrep-snake"
 include: "rules/megahit-snake"
@@ -23,10 +23,10 @@ include: "rules/qc-snake"
 include: "rules/sourmash-snake"
 include: "rules/trim-snake"
     
-print(metaG_run_accession)
-print("meta'd", flush = True)
-print(metaG_run_accession[0], flush = True)
-print(identify_read_groups("Group1", "metaG", FORWARD=True), flush = True)
+#print(metaG_run_accession)
+#print("meta'd", flush = True)
+#print(metaG_run_accession[0], flush = True)
+#print(identify_read_groups("Group1", "metaG", FORWARD=True), flush = True)
 
 MODE = config["mode"]
 outlog = "metaT_and_metaG.log"
