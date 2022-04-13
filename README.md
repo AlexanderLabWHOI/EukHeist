@@ -3,22 +3,16 @@
 
 
 ## 1.0 Introduction
-Molecular and genomic approaches, particularly those applied to whole, mixed communities (e.g. metagenomics, metatranscriptomics), have shed light on the ecological roles, evolutionary histories, and physiological capabilities of these organisms. We developed a scalable and reproducible pipeline to facilitate the retrieval, taxonomic assignment, and annotation of eukaryotic metagenome assembled genomes (MAGs) from mixed community metagenomes. The below pipeline uses **EukHeist** to retrieve eukaryotic (and other) metagenome assembled genomes from the *Tara Oceans* global dataset.
+Molecular and genomic approaches, particularly those applied to whole, mixed communities (e.g., metagenomics, metatranscriptomics), have shed light on the ecological roles, evolutionary histories, and physiological capabilities of these organisms. We developed a scalable and reproducible pipeline to facilitate the retrieval, taxonomic assignment, and annotation of eukaryotic metagenome assembled genomes (MAGs) from mixed community metagenomes. The below workflow describes how to use **EukHeist** to retrieve eukaryotic (and other) metagenome assembled genomes and analyze metatranscriptomes.
 
 _General workflow_
 
 ![flowchart](input/flowchart1.png)
 
 
-_User workflow_
-* get set up on HPC with snakemake
-* input sample list, assembly group
-* Run tests and confirm rules in pipeline you plan to use
-
-
 ## 2.0 Set up
 
-Locate and organize metagenomic and metatranscriptomic fastq files. Create a single directory for your metagenomic reads and a second directory for metatranscriptomic reads. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
+Along with setting up an environment to run EukHeist, you will also need to organize your metagenomic and metatranscriptomic fastq files. Create a single directory for your metagenomic reads and a second directory for metatranscriptomic reads. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
 
 
 ### 2.1 Structure input fastq files in individual directories
@@ -29,15 +23,11 @@ Example file structure:
  ├── metagenome
  └── metatranscriptome
 ```
-
-To use the test data, run:
-```bash download-test-data.sh```
-
 This will download raw reads, for a test run, to the metagenome and metatranscriptome directories.
 
 ### 2.2 Create _sample list_ files for metagenome and metatranscriptome data
 
-The final sample list files should look like this, with complete paths under "FULLPATH" and the assembly grouping lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines.
+The final sample list files should look like this, with complete paths under "FULLPATH" and the assembly grouping lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines. Both the metagenomic and metatranscriptomic data, the **ASSEMBLY_GROUPING** names need to match.
 
 **Example sample list files**
 
@@ -47,9 +37,7 @@ ERR1163068      CTD1200_DNA     METAGENOMIC     /../../../metagenome ERR1163068_
 ERR1163069      CTD1200_DNA     METAGENOMIC     /../../../metagenome ERR1163069_1.fastq.gz   ERR1163069_2.fastq.gz   CTD1200_DNA
 ERR1163070      CTD1200_DNA     METAGENOMIC     /../../../metagenome ERR1163070_1.fastq.gz   ERR1163070_2.fastq.gz   CTD1200_DNA
 ```
-
 See example file "input-samplelist-example-metagenomic.txt". These should be _.txt_ files and separated with a tab.
-
 
 
 ### 2.3 Generate an *Assembly group* file
@@ -60,16 +48,15 @@ The first column, 'ASSEMBLY_GROUPING' lists the unique names for each group spec
 ASSEMBLY_GROUPING       SAMPLE_LIST
 Group1  ERR1726828,ERR599214
 Group2  ERR868421
-```
+CTD1200_DNA ERR1163068,ERR1163069ERR1163070
 
+```
 
 Create sample list files that end in ```metatranscriptomic.txt``` and metagenomic.txt```, and run this R script to automatically generate the Assembly group files. 
 
 Run Rscript ```/../generate-assembly-group-tables.r```; this will input the sample list file and generate the assembly grouping file, as long as the sample names designate the assembly groups.
 
-
-
-## 3.0 Set up EukHeist
+## 3.0 Install & set up EukHeist
 
 Start by cloning this repo.
 ```
@@ -83,11 +70,13 @@ conda create -n EUKHeist -c conda-forge mamba #create EUKHeist environment
 conda activate EUKHeist #activate EUKHeist
 mamba install -c bioconda -c conda-forge snakemake python jinja2 networkx matplotlib graphviz #install items from bioconda and conda-forge needed to run pipeline
 ```
-_Update above instructions later when versions of needed software is updated_
 
+For the other packages, see the individual _.yaml_ files that snakemake will conda install in the ```envs``` directory.
 
+Other software used in EukHeist:
+* 
 
-### 3.1
+### 3.1 Modify input configuration
 
 Modify ```hierarchy_cluster.yaml``` to tell EukHeist the location of raw read directories, assembly group table, and where you want results to be stored.
 
@@ -112,7 +101,7 @@ metaT:
     folder_name: metaT #PRJEB6609
 
 adapters: input/adapters/illumina-adapters.fa
-mode: metaG
+mode: both # options are 'metaT', 'metaG', or 'both'
 
 megahit:
     cpu: 80
@@ -121,21 +110,15 @@ megahit:
     other: --continue --k-list 29,39,59,79,99,119
 
 ```
-
-Co-assembly will be dictated by user providing a column in the sample list input file and toggling the ```create_sample_table:``` to True or False.
-In each...?
+Co-assembly will be dictated by user providing a column in the sample list input file and toggling the ```create_sample_table:``` to True or False. If you've already created a sample list file, add to the assembly_group_table line and use False.
 
 
 ### 3.2 Review working directory
 
-_Need to clean this up when we have a final working version_
-
-Explanation of working directory:
-
+Outside of inputing full paths and making sure your computational set up can run EukHeist, the other directors, files, and scripts from this repo are summarized below:
 ```
 EukHeist
 ├── cluster.yaml # File that is modified by user to run snakemake on HPC
-├── config.yaml #RM
 ├── environment.yaml # Environment to create snakemake conda env
 ├── envs # Directory with all environment files for each snakemake rule
 ├── EUKHeist # Snakemake script for EukHeist
@@ -179,6 +162,12 @@ conda activate EukHeist # Prefix to each line should now read "(EukHeist)"
 snakemake -s EUKHeist -np --use-conda
 ```
 
+To execute a dry run with the HPC configuation, use the provided script. 
+```
+conda activate EukHeist
+bash submit_script/dry_submit_snakemake.sh
+```
+
 ### 4.4 Execute full snakemake pipeline 
 
 Once you get a green output from snakemake with the dry run, it means that the EukHeist pipeline is ready to run. Run the bash script in the ```submit_script``` directory to send all jobs to slurm. This will enable the parameters you specified in the cluster.yaml file.
@@ -189,7 +178,6 @@ bash submit_script/submit_snakemake.sh
 ## If not using HPC
 # snakemake -s EUKHeist --use-conda --cores <number of available cores>
 ```
-
 
 
 ## 5.0 EukHeist output
