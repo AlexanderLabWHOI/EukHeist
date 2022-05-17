@@ -3,22 +3,22 @@
 
 
 ## 1.0 Introduction
-Molecular and genomic approaches, particularly those applied to whole, mixed communities (e.g. metagenomics, metatranscriptomics), have shed light on the ecological roles, evolutionary histories, and physiological capabilities of these organisms. We developed a scalable and reproducible pipeline to facilitate the retrieval, taxonomic assignment, and annotation of eukaryotic metagenome assembled genomes (MAGs) from mixed community metagenomes. The below pipeline uses **EukHeist** to retrieve eukaryotic (and other) metagenome assembled genomes from the *Tara Oceans* global dataset.
+Molecular and genomic approaches, particularly those applied to whole, mixed communities (e.g. metagenomics, metatranscriptomics), have shed light on the ecological roles, evolutionary histories, and physiological capabilities of these organisms. We developed a scalable and reproducible pipeline to facilitate the retrieval, taxonomic assignment, and annotation of eukaryotic metagenome assembled genomes (MAGs) from mixed community metagenomes. The below representation of the pipeline shows how **EukHeist** can be used to retrieve eukaryotic (and other) metagenome assembled genomes from the *Tara Oceans* global dataset.
 
 _General workflow_
 
-![flowchart](input/flowchart1.png)
+![flowchart](static/eukheist.png)
 
 
 _User workflow_
-* get set up on HPC with snakemake
+* get set up on HPC with `Snakemake`
 * input sample list, assembly group
-* Run tests and confirm rules in pipeline you plan to use
+* run tests and confirm rules in pipeline you plan to use
 
 
 ## 2.0 Set up
 
-Locate and organize metagenomic and metatranscriptomic fastq files. Create a single directory for your metagenomic reads and a second directory for metatranscriptomic reads. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. In this step, we are creating input file lists that will tell EukHeist where to look for our input fastq reads, what to name them, and how to group the assemblies or mapping.
+Locate and organize metagenomic and metatranscriptomic fastq files. Create a raw reads directory, and within that a single directory for your metagenomic reads and a second directory for metatranscriptomic reads. You will need to know the full path for all files, individual sample IDs, and an idea of how the assemblies should be grouped. This grouping may be selected on the basis of anticipated sample similarity: e.g., you may wish to co-assemble several replicates from a single or closely-related set of sampling locations in order to maximize metagenome-assembled genome recovery but minimize mixing of organisms from distinct sites. In this step, we are creating input file lists that will tell `EukHeist` where to look for our input fastq reads, what to name them, and how to group the assemblies and mapping steps.
 
 
 ### 2.1 Structure input fastq files in individual directories
@@ -33,11 +33,11 @@ Example file structure:
 To use the test data, run:
 ```bash download-test-data.sh```
 
-This will download raw reads, for a test run, to the metagenome and metatranscriptome directories.
+This will download raw reads, for a test run, to the metagenome and metatranscriptome directories. This is also a way by which you can familiarize yourself with the format that we expect and get ready for your future runs of `EukHeist`. 
 
 ### 2.2 Create _sample list_ files for metagenome and metatranscriptome data
 
-The final sample list files should look like this, with complete paths under "FULLPATH" and the assembly grouping lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines.
+The final sample list files should look like this, with complete paths under "FULLPATH" and the assembly grouping lists how you want the samples to be assembled for the metagenomic and metatranscriptomic pipelines. In this example, all three of these files would be assembled together in a single `MEGAHIT` assembly, because they have the same "ASSEMBLY_GROUPING" name. If you don't want any of your samples to be assembled in the same batch, you can simply name the assembly group the same way you named the sample.
 
 **Example sample list files**
 
@@ -54,7 +54,7 @@ See example file "input-samplelist-example-metagenomic.txt". These should be _.t
 
 ### 2.3 Generate an *Assembly group* file
 
-The first column, 'ASSEMBLY_GROUPING' lists the unique names for each group specified from the sample list file. The second column lists the sample IDs (in this example, the accession numbers), that are associated with the ASSEMBLY_GROUPING. These sample IDs are collapsed with commas.
+The first column, 'ASSEMBLY_GROUPING' lists the unique names for each group specified from the sample list file. The second column lists the sample IDs (in this example, the accession numbers), that are associated with the ASSEMBLY_GROUPING. These sample IDs are collapsed with commas. This file should match your list of samples above (so if you have one sample per assembly group, every sample list in this file should have only one sample and should not be separated by commas.
 
 ```
 ASSEMBLY_GROUPING       SAMPLE_LIST
@@ -63,7 +63,7 @@ Group2  ERR868421
 ```
 
 
-Create sample list files that end in ```metatranscriptomic.txt``` and metagenomic.txt```, and run this R script to automatically generate the Assembly group files. 
+Create sample list files that end in `metatranscriptomic.txt` and `metagenomic.txt`, and run this R script to automatically generate the Assembly group files. 
 
 Run Rscript ```/../generate-assembly-group-tables.r```; this will input the sample list file and generate the assembly grouping file, as long as the sample names designate the assembly groups.
 
