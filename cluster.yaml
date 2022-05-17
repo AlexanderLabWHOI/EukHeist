@@ -1,6 +1,6 @@
 __default__:
     system: 'slurm' #check if system is defined below
-    account: halexander #requred
+    account: sarahhu #required
     time: 120 # minutes
     mem: 10 # GB
     threads: 8
@@ -8,7 +8,7 @@ __default__:
     nodes: 1
     command_options:
         slurm:
-            command: "sbatch --parsable --qos=unlim"
+            command: "sbatch --parsable"
             key_mapping:
             name: "--job-name={}"
             threads: "-n {}"
