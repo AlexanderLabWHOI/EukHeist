@@ -2,6 +2,7 @@ configfile: "hierarchy_cluster.yaml"
 
 import io 
 import os
+from datetime import date
 import pandas as pd
 import numpy as np
 import pathlib
@@ -50,13 +51,9 @@ rule metaT_and_metaG:
                                     study = METAT_FOLDER, sample=metaT_run_accession, num = [1,2]),  
         #MULTIQC
         html_rawG = OUTPUTDIR + "/qc/rawG_multiqc.html",
-        stats_rawG = OUTPUTDIR + "/qc/rawG_multiqc_general_stats.txt",
         html_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc.html",
-        stats_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc_general_stats.txt",
         html_rawT = OUTPUTDIR + "/qc/rawT_multiqc.html",
-        stats_rawT = OUTPUTDIR + "/qc/rawT_multiqc_general_stats.txt",
         html_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc.html",
-        stats_trimmedT = OUTPUTDIR + "/qc/trimmedT_multiqc_general_stats.txt",
         #TRIM DATA
         trimmedDataG = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
                               study = METAG_FOLDER, sample = metaG_run_accession, num = [1,2]), 
@@ -102,9 +99,11 @@ rule metaT_and_metaG:
     output:
         outfile = os.path.join(OUTPUTDIR, "metaT_and_metaG.log")
     run:
-        run_info = pd.DataFrame([""]*len(METAG_SAMPLE_TABLE.columns), columns=METAG_SAMPLE_TABLE.columns)
-        run_info.iloc[0,1] = "EUKHeist completed its run on " + str(date.today()) + " in metaG-only mode"
-        outputtab = pd.concat(run_info,METAG_SAMPLE_TABLE)
+        metag_tab = pd.read_table(METAG_SAMPLE_TABLE)
+        run_info = pd.DataFrame(columns=metag_tab.columns)
+        run_info.loc[0] = [""]*len(metag_tab.columns)
+        run_info.iloc[0,1] = "EUKHeist completed its run on " + str(date.today()) + " in metaG- and metaT- mode"
+        outputtab = pd.concat([run_info,metag_tab])
         outputtab.to_csv(output.outfile)
                           
 rule metaG_only: 
@@ -116,9 +115,7 @@ rule metaG_only:
                                     study = METAG_FOLDER, sample=metaG_run_accession, num = [1,2]),  
         #MULTIQC
         html_rawG = OUTPUTDIR + "/qc/rawG_multiqc.html",
-        stats_rawG = OUTPUTDIR + "/qc/rawG_multiqc_general_stats.txt",
         html_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc.html",
-        stats_trimmedG = OUTPUTDIR + "/qc/trimmedG_multiqc_general_stats.txt",
         
         #TRIM DATA
         trimmedDataG = expand("{base}/trimmed/{study}/{sample}_{num}.trimmed.fastq.gz", base = SCRATCHDIR, 
@@ -162,8 +159,10 @@ rule metaG_only:
     output:
         outfile = os.path.join(OUTPUTDIR, "metaG_only.log")
     run:
-        run_info = pd.DataFrame([""]*len(METAG_SAMPLE_TABLE.columns), columns=METAG_SAMPLE_TABLE.columns)
+        metag_tab = pd.read_table(METAG_SAMPLE_TABLE)
+        run_info = pd.DataFrame(columns=metag_tab.columns)
+        run_info.loc[0] = [""]*len(metag_tab.columns)
         run_info.iloc[0,1] = "EUKHeist completed its run on " + str(date.today()) + " in metaG-only mode"
-        outputtab = pd.concat(run_info,METAG_SAMPLE_TABLE)
+        outputtab = pd.concat([run_info,metag_tab])
         outputtab.to_csv(output.outfile)
         

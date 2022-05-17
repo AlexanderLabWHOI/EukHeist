@@ -4,6 +4,7 @@ __default__:
     time: 120 # minutes
     mem: 10 # GB
     threads: 8
+    cpupertask: 10
     queue: compute # required
     nodes: 1
     command_options:
@@ -12,6 +13,7 @@ __default__:
             key_mapping:
             name: "--job-name={}"
             threads: "-n {}"
+            cpupertask: "--cpu-per-task={}"
             mem: "--mem={}g"
             account: "--account={}"
             queue: "--partition={}"
@@ -44,7 +46,7 @@ compute_sigs:
 
 megahit_assembly:
     queue: bigmem
-    time: 10080 
+    time: 10080
     mem: 3000
     threads: 80 
 
@@ -62,30 +64,35 @@ bwa_mem:
 
 metabat_abundance: 
     queue: compute
-    time: 720
-    mem: 18
-    threads: 16
+    time: 2880
+    mem: 100
+    cpupertask: 10
+    threads: 1
 
 metabat_binning: 
     queue: compute
-    time: 720
-    mem: 32
-    threads: 16
+    time: 2880
+    mem: 100
+    cpupertask: 10
+    threads: 1
 
 metabat_binning_euk: 
     queue: compute
-    time: 720
-    mem: 32
-    threads: 16
+    time: 1440
+    mem: 100
+    cpupertask: 10
+    threads: 1
 
 eukrep:
     queue: compute
     time: 600
-    mem: 8
-    threads: 2
+    mem: 50
+    cpupertask: 5
+    threads: 1
 
 prodigal:
     queue: compute
     time: 2400
-    mem: 16 
+    mem: 100
+    cpupertask: 10
     threads: 1

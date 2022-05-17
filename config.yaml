@@ -1,44 +1,25 @@
-metaG_accession: metaG_vent_raw
-metaT_accession: metaT_vent_raw
+directories:
+    input: /vortexfs1/omics/alexander/shu/eukheist-vent #/test-data
+    output: /vortexfs1/omics/alexander/shu/eukheist-vent/output-data-coassemble
+    scratch: /vortexfs1/scratch/sarahhu/vent-eukheist-coassemble
 
-metaG_ena_table: /vortexfs1/omics/alexander/shu/eukheist-vent/vent-euk-metagenomic.txt
-metaT_ena_table:/vortexfs1/omics/alexander/shu/eukheist-vent/vent-euk-metatranscriptomic.txt
+metaG:
+    create_sample_table: False
+    sample_data_table: /vortexfs1/omics/alexander/shu/eukheist-vent/vent-euk-metagenomic.txt
+    assembly_group_table: /vortexfs1/omics/alexander/shu/eukheist-vent/coassembly-list-metaG.txt
+    folder_name: metaG_vent_raw #PRJEB4352 # FOLDER
+    
+metaT:
+    create_sample_table: False
+    sample_data_table: /vortexfs1/omics/alexander/shu/eukheist-vent/vent-euk-metatranscriptomic.txt
+    assembly_group_table: /vortexfs1/omics/alexander/shu/eukheist-vent/coassembly-list-metaT.txt
+    folder_name: metaT_vent_raw #PRJEB6609
 
-#metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE-TEST.txt
-#metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE-TEST.txt
-#metaG_ena_table: input/ENA_tables/PRJEB4352_metaG_wenv_PE.txt
-#metaT_ena_table: input/ENA_tables/PRJEB6609_metaT_wenv_PE.txt
+adapters: /vortexfs1/omics/alexander/shu/eukheist-vent/EukHeist/input/adapters/illumina-adapters.fa
+mode: both
 
-inputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent
-outputDIR: /vortexfs1/omics/alexander/shu/eukheist-vent/output-data
-
-#outputDIR: /vortexfs1/omics/alexander/akrinos/output-data-TARA
-#outputDIR: /vortexfs1/omics/alexander/data/TARA/PRJEB4352-snakmake-output 
-
-scratch:  /vortexfs1/scratch/sarahhu/vent-eukheist
-adapters: input/adapters/illumina-adapters.fa
-
-# Within 'inputDIR', path to sample list, change name?
-metaG_samplelist: assembly-list-metaG.txt
-metaT_samplelist: assembly-list-metaT.txt
-
-# Or do I use full path?
-#metaG_samplelist: /vortexfs1/omics/alexander/shu/eukheist-vent/assembly-list-metaG.txt
-#metaT_samplelist: /vortexfs1/omics/alexander/shu/eukheist-vent/assembly-list-metaT.txt
-
-#metaG_sample_list: input/SampleList_ForAssembly_metaG_python-TEST.txt
-#metaT_sample_list: input/SampleList_ForAssembly_metaT_python-TEST.txt 
-
-#metaG_sample_list: input/SampleList_ForAssembly_metaG_python.txt
-#metaT_sample_list: input/SampleList_ForAssembly_metaT_python.txt 
-
-megahit_other: --continue --k-list 29,39,59,79,99,119 
-megahit_cpu: 80
-megahit_min_contig: 1000
-megahit_mem: .95
-restart-times: 0
-max-jobs-per-second: 1
-max-status-checks-per-second: 10
-local-cores: 1
-rerun-incomplete: true
-keep-going: true
+megahit:
+    cpu: 80
+    min_contig: 1000
+    mem: .95
+    other: --continue --k-list 29,39,59,79,99,119

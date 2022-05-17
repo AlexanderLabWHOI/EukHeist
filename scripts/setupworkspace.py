@@ -77,7 +77,9 @@ metaT_run_accession = list(METAT_SAMPLES.SAMPLEID)
 #----FUNCTIONS FOR PIPELINE----#
 
 def identify_read_groups(assembly_group_name, STUDY, FORWARD=True):
-    ERR_list = str(METAG_SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST']).split(',')
+    ERR_list = []
+    [ERR_list.extend(curr.split(",")) for curr in list(METAG_SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'])] 
+    #str(METAG_SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST']).split(',')
     ident_col = "R2"
     if FORWARD: 
         ident_col = "R1"
@@ -98,7 +100,9 @@ def identify_read_groups(assembly_group_name, STUDY, FORWARD=True):
 def get_sample_list(assembly_group, SAMPLELIST, STUDY):
     outlist = []
     for assembly_group_name in assembly_group: 
-        ERR_list = SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'].split(',')
+        ERR_list = []
+        [ERR_list.extend(curr.split(",")) for curr in list(SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'])] 
+        #SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'].split(',')
         for E in ERR_list:
             out = SCRATCHDIR + "/mapping/{}/{}/{}.bam".format(assembly_group_name,STUDY, E) 
             outlist.append(out)
@@ -107,7 +111,9 @@ def get_sample_list(assembly_group, SAMPLELIST, STUDY):
 
 def get_sample_list_onegroup(assembly_group_name, SAMPLELIST, STUDY):
     outlist = []
-    ERR_list = SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'].split(',')
+    ERR_list = [] 
+    [ERR_list.extend(curr.split(",")) for curr in list(SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'])] 
+    #SAMPLELIST.loc[assembly_group_name, 'SAMPLE_LIST'].split(',')
     for E in ERR_list:
         out = SCRATCHDIR + "/mapping/{}/{}/{}.bam".format(assembly_group_name, STUDY, E)
         outlist.append(out)

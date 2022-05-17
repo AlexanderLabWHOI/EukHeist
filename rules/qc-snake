@@ -13,7 +13,7 @@ def get_filenames(sample, study, leftorright):
     filenames = os.listdir(os.path.join(INPUTDIR, study))
     fastqnames = os.listdir(os.path.join(INPUTDIR, study))
     matchednames = []
-    print(filenames,flush=True)
+    #print(filenames,flush=True)
     indexsample = [ind for ind in range(0,len(filenames)) if (sample in filenames[ind])][0]
     sample_fastq = filenames[indexsample].split(".")[0]
     for fcurr in filenames: 
@@ -96,24 +96,25 @@ rule multiqc_metaG:
         multiqc -f --export -n {params.first_name}.html -o {params.first_name} {input.trimmedG}
         cat {params.first_name}/{params.first_name}*.html > {output.html_trimmedG}
         mv {params.first_name}/{params.first_name}_data {params.outdir}/{params.first_name}_data
-        #cat {params.first_name}/{params.first_name}_data/multiqc_general_stats.txt > {output.stats_trimmedG} 
         rm -rf {params.first_name}/
         
         multiqc -f --export -n {params.raw_name}.html -o {params.raw_name} {input.rawG}
         cat {params.raw_name}/{params.raw_name}*.html > {output.html_rawG}
         mv {params.raw_name}/{params.raw_name}_data {params.outdir}/{params.raw_name}_data
-        #cat {params.raw_name}/{params.raw_name}_data/multiqc_general_stats.txt > {output.stats_trimmedG} 
         rm -rf {params.raw_name}/
-        #multiqc -n multiqc.html {input.rawG}
-        #mv multiqc.html {output.html_rawG}
-        #mv multiqc_data/multiqc_general_stats.txt {output.stats_rawG} 
-        #rm -rf multiqc_data
-
-        #multiqc -n multiqc.html {input.trimmedG}
-        #mv multiqc.html {output.html_trimmedG}
-        #mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedG} 
-        #rm -rf multiqc_data
         """ 
+
+#cat {params.first_name}/{params.first_name}_data/multiqc_general_stats.txt > {output.stats_trimmedG}
+#cat {params.raw_name}/{params.raw_name}_data/multiqc_general_stats.txt > {output.stats_trimmedG}
+#multiqc -n multiqc.html {input.rawG}
+#mv multiqc.html {output.html_rawG}
+#mv multiqc_data/multiqc_general_stats.txt {output.stats_rawG}
+#rm -rf multiqc_data
+#multiqc -n multiqc.html {input.trimmedG}
+#mv multiqc.html {output.html_trimmedG}
+#mv multiqc_data/multiqc_general_stats.txt {output.stats_trimmedG}
+#rm -rf multiqc_data
+
 
 rule multiqc_metaT:
     input:
@@ -139,12 +140,10 @@ rule multiqc_metaT:
         multiqc -n {params.first_name}.html -o {params.first_name} {input.trimmedT}
         cat {params.first_name}/{params.first_name}*.html > {output.html_trimmedT}
         mv {params.first_name}/{params.first_name}_data {params.outdir}/{params.first_name}_data
-        #cat {params.first_name}/{params.first_name}_data/multiqc_general_stats.txt > {output.stats_trimmedT} 
         rm -rf {params.first_name}/
         
         multiqc -n {params.raw_name}.html -o {params.raw_name} {input.rawT}
         cat {params.raw_name}/{params.raw_name}*.html > {output.html_rawT}
         mv {params.raw_name}/{params.raw_name}_data {params.outdir}/{params.raw_name}_data
-        #cat {params.raw_name}/{params.raw_name}_data/multiqc_general_stats.txt > {output.stats_trimmedT} 
         rm -rf {params.raw_name}/
         """ 
