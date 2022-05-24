@@ -1,4 +1,5 @@
 # EukHeist: Capturing environmental eukaryotic genomes
+[![biorxiv - preprint](https://img.shields.io/badge/biorxiv-preprint-green)](https://www.biorxiv.org/content/10.1101/2021.07.25.453713v1.abstract) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 ## Snakemake-based workflow for the retrieval of Eukaryotic (and other) genomes from metagenomes
 
 
@@ -245,15 +246,18 @@ Exception in thread "main" java.io.EOFException: Unexpected end of ZLIB input st
 ```
 It indicates that there is something wrong with your original fastq file and trimmomatic detected it. To test your raw fastq files, use the command ```gunzip -t <fastq-file-name> && echo "VALID"```, the output will print "VALID" if the fastq file is formatted and zipped properly. It there is an issue, you may need to re-download the raw sequence file.
 
+### Tara Oceans Application of `EUKHeist`
 
+#### Downloading raw data
 
+Please see our GitHub repository for information on how to pull the raw data from the _Tara_ Oceans project from ENA: [![github - tara-download-snakemake](https://img.shields.io/badge/github-tara--download--snakemake-yellow)](https://github.com/AlexanderLabWHOI/tara-download-snakemake)
 
+#### Links to processed data (MAGs) from OSF (Alexander et al 2021)
 
+- Preprint here: [![biorxiv - preprint](https://img.shields.io/badge/biorxiv-preprint-green)](https://www.biorxiv.org/content/10.1101/2021.07.25.453713v1.abstract)
+- OSF link for data: [![OSF - data](https://img.shields.io/badge/OSF-data-red)](https://osf.io/gm564/)
+- Talk from the BVCN conference: [![talk - recording](https://img.shields.io/badge/talk-recording-yellow)](https://www.youtube.com/watch?v=kgwetTIoZis)
 
-## TO DO
-* update so that input files can be R1_001.fastq.gz or 1.fastq.gz - or else?
-* Add example sample list and assembly list
-* (a) ensures all fastq files in SAMPLE LIST are present and not duplicated file names, (b) all samples listed in the ASSMEBLY GROUPS are also present in the SAMPLE LIST and not included more than once.
-* additional details on how the snakemake EUKHeist pipeline is set up (rules directory, etc).
-* Documentation specific for Tara ocean?
-* Check sarah's modified environments and fastqc rule for some revisions to EUKHeist pipeline.
+#### Description of data analysis (paper folder)
+
+Last updated 18 May 2022. If you have questions about the approach we took here, or have tried it out yourself and have input about our modular, à la carte approach to metagenome-assembled genome (MAG) binning, please do reach out to us over on the `Issues` tab!
