@@ -1,4 +1,5 @@
-configfile: "config.yaml"  
+#configfile: "config.yaml"  
+config.file: "/vortexfs1/omics/alexander/shu/eukheist-vent/EukHeist/config.yaml"
 
 import io 
 import os
