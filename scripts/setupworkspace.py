@@ -43,24 +43,31 @@ def createSampleTable(tag, category, input_dir, folder):
 #----SET VARIABLES----#
 
 #----STATIC REQUIRED VARIABLES----#
+MODE="both"
+if "mode" in config:
+    if (config["mode"]=="metaG")|(config["mode"]=="metaG_only")|(config["mode"]=="metag")|\
+       (config["mode"]=="metag_only"):
+        MODE="metaG"
 INPUTDIR = config["directories"]["input"]
 ADAPTERS = config["adapters"]
 SCRATCHDIR = config["directories"]["scratch"]
 OUTPUTDIR = config["directories"]["output"]
 
 METAG_FOLDER = config["metaG"]["folder_name"]
-METAT_FOLDER = config["metaT"]["folder_name"]
+if MODE=="both":
+    METAT_FOLDER = config["metaT"]["folder_name"]
+    METAT_SAMPLE_TABLE, METAT_ASSEMBLY_TABLE = createSampleTable("metaT", "METATRANSCRIPTOME", INPUTDIR, METAT_FOLDER)
+    METAT_SAMPLES = pd.read_table(METAT_SAMPLE_TABLE)
+    METAT_STUDY = list(set(METAT_SAMPLES["SAMPLEID"].tolist()))
+    METAT_SAMPLELIST = pd.read_table(METAT_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
+    METAT_ASSEMBLYGROUP= list(METAT_SAMPLELIST.index)    
+
 METAG_SAMPLE_TABLE, METAG_ASSEMBLY_TABLE = createSampleTable("metaG", "METAGENOME", INPUTDIR, METAG_FOLDER)
-METAT_SAMPLE_TABLE, METAT_ASSEMBLY_TABLE = createSampleTable("metaT", "METATRANSCRIPTOME", INPUTDIR, METAT_FOLDER)
     
 METAG_SAMPLES = pd.read_table(METAG_SAMPLE_TABLE)
-METAT_SAMPLES = pd.read_table(METAT_SAMPLE_TABLE)
 METAG_STUDY = list(set(METAG_SAMPLES["SAMPLEID"].tolist()))
-METAT_STUDY = list(set(METAT_SAMPLES["SAMPLEID"].tolist()))
 METAG_SAMPLELIST = pd.read_table(METAG_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
 METAG_ASSEMBLYGROUP = list(METAG_SAMPLELIST.index)
-METAT_SAMPLELIST = pd.read_table(METAT_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
-METAT_ASSEMBLYGROUP= list(METAT_SAMPLELIST.index)
 ASSEMBLYGROUP = METAG_ASSEMBLYGROUP
 USEFILE = False # whether to use the paths in the sample file to find the files if True, or use the metaT/metaG folder if False
 
@@ -72,7 +79,8 @@ MEGAHIT_OTHER = config["megahit"]["other"]
 
 #----ACCESSION NUMS----#
 metaG_run_accession = list(METAG_SAMPLES.SAMPLEID)
-metaT_run_accession = list(METAT_SAMPLES.SAMPLEID)
+if MODE=="both":
+    metaT_run_accession = list(METAT_SAMPLES.SAMPLEID)
 
 #----FUNCTIONS FOR PIPELINE----#
 
