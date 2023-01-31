@@ -29,7 +29,6 @@ include: "rules/trim-snake"
 #print(metaG_run_accession[0], flush = True)
 #print(identify_read_groups("Group1", "metaG", FORWARD=True), flush = True)
 
-MODE = config["mode"]
 outlog = "metaT_and_metaG.log"
 if MODE == "metaG":
     outlog = "metaG_only.log"
