@@ -136,7 +136,7 @@ rule metaG_only:
 
         #BWA MAPPING:
         bwa_memG = get_sample_list(METAG_ASSEMBLYGROUP, METAG_SAMPLELIST, METAG_FOLDER), 
-        bwa_memT = get_sample_list(METAT_ASSEMBLYGROUP, METAT_SAMPLELIST, METAT_FOLDER), 
+#        bwa_memT = get_sample_list(METAT_ASSEMBLYGROUP, METAT_SAMPLELIST, METAT_FOLDER), 
 
         #BINNING 
 
