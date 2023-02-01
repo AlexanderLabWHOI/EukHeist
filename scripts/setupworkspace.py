@@ -61,6 +61,14 @@ if MODE=="both":
     METAT_STUDY = list(set(METAT_SAMPLES["SAMPLEID"].tolist()))
     METAT_SAMPLELIST = pd.read_table(METAT_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
     METAT_ASSEMBLYGROUP= list(METAT_SAMPLELIST.index)    
+else:
+    METAT_FOLDER="placeholder"
+    METAT_SAMPLE_TABLE="placeholder"
+    METAT_ASSEMBLY_TABLE="placeholder"
+    METAT_SAMPLES="placeholder"
+    METAT_SAMPLELIST="placeholder"
+    METAT_ASSEMBLYGROUP="placeholder"
+    METAT_STUDY="placeholder"
 
 METAG_SAMPLE_TABLE, METAG_ASSEMBLY_TABLE = createSampleTable("metaG", "METAGENOME", INPUTDIR, METAG_FOLDER)
     
@@ -81,6 +89,8 @@ MEGAHIT_OTHER = config["megahit"]["other"]
 metaG_run_accession = list(METAG_SAMPLES.SAMPLEID)
 if MODE=="both":
     metaT_run_accession = list(METAT_SAMPLES.SAMPLEID)
+else:
+    metaT_run_accession = "placeholder"
 
 #----FUNCTIONS FOR PIPELINE----#
 
