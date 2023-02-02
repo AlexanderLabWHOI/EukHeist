@@ -95,17 +95,19 @@ else:
     metaT_run_accession = "placeholder"
 
 #----FUNCTIONS FOR PIPELINE----#
-def identify_raw_reads(sample_name, STUDY=METAG_FOLDER, FORWARD=True):
+def identify_raw_reads(sample_name, STUDY=METAG_FOLDER, FORWARD=True, full_path=False):
     ident_col="R1"
     if (not FORWARD) | (FORWARD==2) | (FORWARD=="2"):
         ident_col="R2"
+    if not full_path:
+        return METAG_SAMPLES.loc[METAG_SAMPLES==sample_name,ident_col].to_string(index=False).strip()
     if USEFILE:
         return os.path.join(METAG_SAMPLES.LOC[METAG_SAMPLES==sample_name,"FULLPATH"].tostring(index=False).strip(),
                         METAG_SAMPLES.LOC[METAG_SAMPLES==sample_name,ident_col].to_string(index=False).strip())
     else:
         return os.path.join(INPUTDIR,STUDY,
                    METAG_SAMPLES.loc[METAG_SAMPLES["SAMPLEID"] == curr_sample,
-                                      ident_col]).to_string(index=False).strip())    
+                                      ident_col].to_string(index=False).strip())    
 
 def identify_read_groups(assembly_group_name, STUDY, FORWARD=True):
     ERR_list = []
