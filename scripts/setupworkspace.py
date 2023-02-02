@@ -54,6 +54,14 @@ SCRATCHDIR = config["directories"]["scratch"]
 OUTPUTDIR = config["directories"]["output"]
 
 METAG_FOLDER = config["metaG"]["folder_name"]
+
+METAG_SAMPLE_TABLE, METAG_ASSEMBLY_TABLE = createSampleTable("metaG", "METAGENOME", INPUTDIR, METAG_FOLDER)
+
+METAG_SAMPLES = pd.read_table(METAG_SAMPLE_TABLE)
+METAG_STUDY = list(set(METAG_SAMPLES["SAMPLEID"].tolist()))
+METAG_SAMPLELIST = pd.read_table(METAG_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
+METAG_ASSEMBLYGROUP = list(METAG_SAMPLELIST.index)
+
 if MODE=="both":
     METAT_FOLDER = config["metaT"]["folder_name"]
     METAT_SAMPLE_TABLE, METAT_ASSEMBLY_TABLE = createSampleTable("metaT", "METATRANSCRIPTOME", INPUTDIR, METAT_FOLDER)
@@ -62,20 +70,14 @@ if MODE=="both":
     METAT_SAMPLELIST = pd.read_table(METAT_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
     METAT_ASSEMBLYGROUP= list(METAT_SAMPLELIST.index)    
 else:
-    METAT_FOLDER="placeholder"
-    METAT_SAMPLE_TABLE="placeholder"
-    METAT_ASSEMBLY_TABLE="placeholder"
-    METAT_SAMPLES="placeholder"
-    METAT_SAMPLELIST="placeholder"
-    METAT_ASSEMBLYGROUP="placeholder"
-    METAT_STUDY="placeholder"
+    METAT_FOLDER=METAG_FOLDER
+    METAT_SAMPLE_TABLE=METAG_SAMPLE_TABLE
+    METAT_ASSEMBLY_TABLE=METAG_ASSEMBLYGROUP
+    METAT_SAMPLES=METAG_SAMPLES
+    METAT_SAMPLELIST=pd.read_table(METAG_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
+    METAT_ASSEMBLYGROUP=METAG_ASSEMBLYGROUP
+    METAT_STUDY=METAG_STUDY
 
-METAG_SAMPLE_TABLE, METAG_ASSEMBLY_TABLE = createSampleTable("metaG", "METAGENOME", INPUTDIR, METAG_FOLDER)
-    
-METAG_SAMPLES = pd.read_table(METAG_SAMPLE_TABLE)
-METAG_STUDY = list(set(METAG_SAMPLES["SAMPLEID"].tolist()))
-METAG_SAMPLELIST = pd.read_table(METAG_ASSEMBLY_TABLE, index_col="ASSEMBLY_GROUPING")
-METAG_ASSEMBLYGROUP = list(METAG_SAMPLELIST.index)
 ASSEMBLYGROUP = METAG_ASSEMBLYGROUP
 USEFILE = False # whether to use the paths in the sample file to find the files if True, or use the metaT/metaG folder if False
 
@@ -93,6 +95,17 @@ else:
     metaT_run_accession = "placeholder"
 
 #----FUNCTIONS FOR PIPELINE----#
+def identify_raw_reads(sample_name, STUDY=METAG_FOLDER, FORWARD=True):
+    ident_col="R1"
+    if (not FORWARD) | (FORWARD==2) | (FORWARD=="2"):
+        ident_col="R2"
+    if USEFILE:
+        return os.path.join(METAG_SAMPLES.LOC[METAG_SAMPLES==sample_name,"FULLPATH"].tostring(index=False).strip(),
+                        METAG_SAMPLES.LOC[METAG_SAMPLES==sample_name,ident_col].to_string(index=False).strip())
+    else:
+        return os.path.join(INPUTDIR,STUDY,
+                   METAG_SAMPLES.loc[METAG_SAMPLES["SAMPLEID"] == curr_sample,
+                                      ident_col]).to_string(index=False).strip())    
 
 def identify_read_groups(assembly_group_name, STUDY, FORWARD=True):
     ERR_list = []
@@ -108,7 +121,7 @@ def identify_read_groups(assembly_group_name, STUDY, FORWARD=True):
                    (METAG_SAMPLES.loc[METAG_SAMPLES["SAMPLEID"] == curr_sample, 
                                       ident_col]).to_string(index=False).strip()) for curr_sample in ERR_list]
     else:
-        outlist = [os.path.join(INPUTDIR, METAG_FOLDER,
+        outlist = [os.path.join(INPUTDIR, STUDY,
                    (METAG_SAMPLES.loc[METAG_SAMPLES["SAMPLEID"] == curr_sample, 
                                       ident_col]).to_string(index=False).strip()) for curr_sample in ERR_list]
         

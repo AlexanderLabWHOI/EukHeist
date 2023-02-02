@@ -31,14 +31,14 @@ def splitfilenames(inname):
 rule fastqc:
     input:
         (lambda filename: expand(os.path.join(INPUTDIR, "{study}", "{sampnames}"),\
-        study = filename.study, sampnames = get_filenames(filename.sample, filename.study, filename.num)))
+        study = filename.study, sampnames = identify_raw_reads(filename.sample, filename.study, filename.num)))
     output:
         html = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}_fastqc.html"), 
         zip = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}", "{sample}_{num}_fastqc.zip")
     params: 
         fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}"),
         outname = (lambda filename: os.path.join(OUTPUTDIR, "qc", "fastqc", filename.study,
-                    splitfilenames(get_filenames(filename.sample, filename.study, filename.num)))) 
+                    splitfilenames(identify_raw_reads(filename.sample, filename.study, filename.num)))) 
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.log")
     conda: 
@@ -60,7 +60,7 @@ rule fastqc_trimmed:
     params: 
         fastqdir = os.path.join(OUTPUTDIR, "qc", "fastqc", "{study}"),
         outname = (lambda filename: os.path.join(OUTPUTDIR, "qc", "fastqc", filename.study,
-                    splitfilenames(get_filenames(filename.sample, filename.study, filename.num))))
+                    splitfilenames(identify_raw_reads(filename.sample, filename.study, filename.num))))
     log: 
         os.path.join(OUTPUTDIR, "logs", "fastqc", "{study}", "{sample}_{num}.trimmed.log")
     conda: os.path.join("..", "envs", "fastqc-env.yaml")
