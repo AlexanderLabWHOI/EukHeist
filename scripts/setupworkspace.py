@@ -100,10 +100,10 @@ def identify_raw_reads(sample_name, STUDY=METAG_FOLDER, FORWARD=True, full_path=
     if (not FORWARD) | (FORWARD==2) | (FORWARD=="2"):
         ident_col="R2"
     if not full_path:
-        return METAG_SAMPLES.loc[METAG_SAMPLES==sample_name,ident_col].to_string(index=False).strip()
+        return METAG_SAMPLES.loc[METAG_SAMPLES["SAMPLEID"]==sample_name,ident_col].to_string(index=False).strip()
     if USEFILE:
-        return os.path.join(METAG_SAMPLES.LOC[METAG_SAMPLES==sample_name,"FULLPATH"].tostring(index=False).strip(),
-                        METAG_SAMPLES.LOC[METAG_SAMPLES==sample_name,ident_col].to_string(index=False).strip())
+        return os.path.join(METAG_SAMPLES.LOC[METAG_SAMPLES["SAMPLEID"]==sample_name,"FULLPATH"].tostring(index=False).strip(),
+                        METAG_SAMPLES.LOC[METAG_SAMPLES["SAMPLEID"]==sample_name,ident_col].to_string(index=False).strip())
     else:
         return os.path.join(INPUTDIR,STUDY,
                    METAG_SAMPLES.loc[METAG_SAMPLES["SAMPLEID"] == curr_sample,
