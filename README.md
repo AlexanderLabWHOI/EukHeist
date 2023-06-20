@@ -11,11 +11,15 @@ _General workflow_
 ![flowchart](static/eukheist.png)
 
 
+### 1.1 EukHeist capabilities
+
+EukHeist is capable of running metagenome analysis on its own and incorporating metatranscriptome reads downstream. In the ```hierarchy_cluster.yaml``` file, a user can select metaG, metaT or both (see section 3.1)
+
+
 _User workflow_
 * get set up on HPC with `Snakemake`
 * input sample list, assembly group
 * run tests and confirm rules in pipeline you plan to use
-
 
 ## 2.0 Set up
 
@@ -123,13 +127,10 @@ megahit:
 
 ```
 
-Co-assembly will be dictated by user providing a column in the sample list input file and toggling the ```create_sample_table:``` to True or False.
-In each...?
+Co-assembly will be dictated by user providing a column in the sample list input file and toggling the ```create_sample_table:```
 
 
 ### 3.2 Review working directory
-
-_Need to clean this up when we have a final working version_
 
 Explanation of working directory:
 
@@ -246,18 +247,20 @@ Exception in thread "main" java.io.EOFException: Unexpected end of ZLIB input st
 ```
 It indicates that there is something wrong with your original fastq file and trimmomatic detected it. To test your raw fastq files, use the command ```gunzip -t <fastq-file-name> && echo "VALID"```, the output will print "VALID" if the fastq file is formatted and zipped properly. It there is an issue, you may need to re-download the raw sequence file.
 
-### Tara Oceans Application of `EUKHeist`
+### 7.0 Accessing EukHeist Tara Oceans results
 
-#### Downloading raw data
+#### 7.1 Downloading raw data
 
 Please see our GitHub repository for information on how to pull the raw data from the _Tara_ Oceans project from ENA: [![github - tara-download-snakemake](https://img.shields.io/badge/github-tara--download--snakemake-yellow)](https://github.com/AlexanderLabWHOI/tara-download-snakemake)
 
-#### Links to processed data (MAGs) from OSF (Alexander et al 2021)
+#### 7.2 Links to processed data (MAGs) from OSF (Alexander et al 2021)
 
 - Preprint here: [![biorxiv - preprint](https://img.shields.io/badge/biorxiv-preprint-green)](https://www.biorxiv.org/content/10.1101/2021.07.25.453713v1.abstract)
 - OSF link for data: [![OSF - data](https://img.shields.io/badge/OSF-data-red)](https://osf.io/gm564/)
 - Talk from the BVCN conference: [![talk - recording](https://img.shields.io/badge/talk-recording-yellow)](https://www.youtube.com/watch?v=kgwetTIoZis)
 
-#### Description of data analysis (paper folder)
+#### 7.3 Using R to download TOPAZ MAGs
+
+
 
 Last updated 18 May 2022. If you have questions about the approach we took here, or have tried it out yourself and have input about our modular, à la carte approach to metagenome-assembled genome (MAG) binning, please do reach out to us over on the `Issues` tab!
