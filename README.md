@@ -261,6 +261,154 @@ Please see our GitHub repository for information on how to pull the raw data fro
 
 #### 7.3 Using R to download TOPAZ MAGs
 
+The [OSFR](https://github.com/ropensci/osfr) package has the capability to access OSF directories and extract files and data that you may need. Set up environment, (>R 4.0).
+
+in R:
+```
+# install.packages("osfr")
+# install.packages("tidyverse")
+library(osfr)
+library(tidyverse)
+```
+
+###### Connect to TOPAZ MAG databases
+
+TOPAZ eukaryotic MAGs:
+```
+topaz <- osf_retrieve_node("c9hj5")
+```
+
+Initial set of MAGs from the Tara Oceans project processed with EukHeist can be found here: ```osf_open(topaz)```
+
+TOPAZ prokaryotic MAGs
+```
+topaz_prok <- osf_retrieve_node("n3v2c")
+```
+
+List all available files in eukaryotic TOPAZ MAGs.
+```
+# topaz
+topaz_euk_all <- osf_ls_files(topaz, 
+             path = "Eukaryotic_TOPAZ_MAGs",
+             # pattern = "IOS", # Option to isolate specific regions
+             # n_max = 10, # Option to only print first 10 (default)
+             n_max = 1000)
+```
+**topaz_euk_all** now has a list of all the eukaryotic TOPAZ MAGs
+
+```
+topaz_prok <- osf_ls_files(topaz_prok, 
+             path = "Prokaryotic_TOPAZ_MAGs",
+             # pattern = "IOS", # Option to isolate specific regions
+             # n_max = 10, # Option to only print first 10 (default)
+             n_max = 1000)
+```
 
 
-Last updated 18 May 2022. If you have questions about the approach we took here, or have tried it out yourself and have input about our modular, à la carte approach to metagenome-assembled genome (MAG) binning, please do reach out to us over on the `Issues` tab!
+##### Example download
+
+Isolate a subset of files of eukaryotic MAGs from NPS. Download to my test-download folder.
+```
+topaz_euk_NPS <- osf_ls_files(topaz, 
+             path = "Eukaryotic_TOPAZ_MAGs",
+             n_max = 10,
+             pattern = "NPS")
+# topaz_euk_NPS
+# ?osf_ls_files
+
+# Download to local directory
+osf_download(
+  topaz_euk_NPS,
+  path = "topaz-mags/test-download/",
+  recurse = FALSE,
+  conflicts = "error",
+  # verbose = FALSE,
+  progress = FALSE
+)
+```
+
+##### Download highly complete eukaryotic MAGs
+
+A text file lists the highly complete eukaryotic MAGs. We can extract this list to download only highly complete eukaryotic MAGs.
+
+```
+osf_download(osf_ls_files(topaz,
+                        path = "Eukaryotic_TOPAZ_MAGs",
+                        pattern = "hqmags.txt"),
+             path = ".",
+             conflicts = "error",
+             recurse = FALSE)
+
+hc_mags <- read.delim("hqmags.txt", header = FALSE)
+```
+
+Get list of the 485 total highly complete MAGs.
+
+```
+hc_mags_list <- as.character(hc_mags$V1)
+# length(hc_mags_list)
+```
+
+Filter from the complete list.
+```
+topaz_euk_HC <- topaz_euk_all %>% 
+          filter(name %in% hc_mags_list)
+
+# topaz_euk_HC
+```
+
+Download all highly complete eukaryotic MAGs
+
+```
+osf_download(
+  topaz_euk_HC,
+  path = "topaz-mags/highly-complete-mags",
+  recurse = FALSE,
+  conflicts = "error",
+  progress = FALSE
+)
+```
+
+##### Download MAGs by taxa
+
+Access supplementary data from EukHeist manuscript.
+
+```
+supp <- osf_retrieve_node("twz2f")
+
+osf_download(osf_ls_files(supp, 
+                        pattern = "TableS02"),
+        path = ".",
+        conflicts = "error",
+        recurse = FALSE)
+```
+
+Import back into R session
+```
+taxa_mags <- read.csv("TableS02_EukaryoticMAG.csv")
+head(taxa_mags)
+```
+
+##### Only download specific haptophyta MAGs
+
+```
+haptophyta <- taxa_mags %>% 
+  # filter(groups == "Haptophyta") %>% 
+  filter(grepl("Prymnesiophyceae", eukulele_taxonomy))
+
+prym_list <- as.character(haptophyta$X)
+```
+
+Select those topaz mags that are prymnesiophyceae and download.
+
+```
+osf_download(topaz_euk_all %>% 
+          filter(name %in% prym_list),
+          path = ".",
+        conflicts = "error",
+        recurse = FALSE)
+```
+
+
+
+_Last updated 20 June 2023. If you have questions about the approach we took here, or have tried it out yourself and have input about our modular, à la carte approach to metagenome-assembled genome (MAG) binning, please do reach out to us over on the `Issues` tab!_
